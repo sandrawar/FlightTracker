@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FlightApp": {
+      "commandName": "Project",
+      "commandLineArgs": "example_data.ftr"
+    }
+  }
+}
