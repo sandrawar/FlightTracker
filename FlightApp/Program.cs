@@ -5,19 +5,38 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Console.WriteLine("Flight App");
+        PrintManual();
 
-        var dataFilePath = args[0];
-        var outFilePath = dataFilePath + "_out.json";
+        var logic = new FlightAppLogic();
 
-        Console.WriteLine($"  data file: {dataFilePath}");
-        IDataLoader loader = new FtrDataLoader();
-        var data = loader.Load(dataFilePath).ToArray();
-        Console.WriteLine($"  data loaded");
+        logic.StartNetworkSimulator(args[0]);
 
-        Console.WriteLine($"  output file: {outFilePath}");
-        IDataSerializer serializer = new DataJsonSerializer();
-        serializer.Serialize(data, outFilePath);
-        Console.WriteLine($"  data serialized");
+        bool endApplication = false;
+        while(!endApplication)
+        {
+            var command = Console.ReadLine();
+            switch(command)
+            {
+                case "exit":
+                    endApplication = true; 
+                    break;
+                case "print":
+                    logic.MakeSnapshot();
+                    Console.WriteLine("Snapshot created");
+                    break;
+                default:
+                    Console.WriteLine("Unrecognized command");
+                    PrintManual();
+                    break;
+            }
+        }
+
+        void PrintManual()
+        {
+            Console.WriteLine("Flight App commands:");
+            Console.WriteLine("  exit - close application");
+            Console.WriteLine("  print - create data snapshot");
+        }
     }
+
 }
