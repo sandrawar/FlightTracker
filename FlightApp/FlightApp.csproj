@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="NetworkSourceSimulator">
+      <HintPath>..\NetworkSourceSimulator.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="example_data.ftr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -24,7 +24,8 @@ internal abstract class FlightAppObject
 
 internal abstract class Person : FlightAppObject
 {
-    protected Person(string classType, ulong id, string name, ulong age, string phone, string email) : base(classType, id)
+    protected Person(string classType, ulong id, string name, ulong age, string phone, string email) 
+        : base(classType, id)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Age = age;
@@ -43,7 +44,8 @@ internal abstract class Person : FlightAppObject
 
 internal class Crew : Person
 {
-    public Crew(string classType, ulong id, string name, ulong age, string phone, string email, ushort practice, string role) : base(classType, id, name, age, phone, email)
+    public Crew(ulong id, string name, ulong age, string phone, string email, ushort practice, string role)
+        : base("C", id, name, age, phone, email)
     {
         Practice = practice;
         Role = role ?? throw new ArgumentNullException(nameof(role));
@@ -56,7 +58,8 @@ internal class Crew : Person
 
 internal class Passanger : Person
 {
-    public Passanger(string classType, ulong id, string name, ulong age, string phone, string email, string @class, ulong miles) : base(classType, id, name, age, phone, email)
+    public Passanger(ulong id, string name, ulong age, string phone, string email, string @class, ulong miles)
+        : base("P", id, name, age, phone, email)
 
     {
         Class = @class ?? throw new ArgumentNullException(nameof(@class));
@@ -70,7 +73,8 @@ internal class Passanger : Person
 
 internal class Cargo : FlightAppObject
 {
-    public Cargo(string classType, ulong id, float weight, string code, string description) : base(classType, id)
+    public Cargo(ulong id, float weight, string code, string description) 
+        : base("CA", id)
     {
         Weight = weight;
         Code = code ?? throw new ArgumentNullException(nameof(code));
@@ -86,7 +90,8 @@ internal class Cargo : FlightAppObject
 
 internal abstract class Plane : FlightAppObject
 {
-    protected Plane(string classType, ulong id, string serial, string country, string model) : base(classType, id)
+    protected Plane(string classType, ulong id, string serial, string country, string model)
+        : base(classType, id)
     {
         Serial = serial ?? throw new ArgumentNullException(nameof(serial));
         Country = country ?? throw new ArgumentNullException(nameof(country));
@@ -102,7 +107,8 @@ internal abstract class Plane : FlightAppObject
 
 internal class CargoPlane : Plane
 {
-    public CargoPlane(string classType, ulong id, string serial, string country, string model, float maxLoad) : base(classType, id, serial, country, model)
+    public CargoPlane(ulong id, string serial, string country, string model, float maxLoad) 
+        : base("CP", id, serial, country, model)
     {
         MaxLoad = maxLoad;
     }
@@ -112,7 +118,8 @@ internal class CargoPlane : Plane
 
 internal class PassangerPlane : Plane
 {
-    public PassangerPlane(string classType, ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize) : base(classType, id, serial, country, model)
+    public PassangerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize) 
+        : base("PP", id, serial, country, model)
     {
         FirstClassSize = firstClassSize;
         BuisnessClassSize = buisnessClassSize;
@@ -128,7 +135,8 @@ internal class PassangerPlane : Plane
 
 internal class Airport : FlightAppObject
 {
-    public Airport(string classType, ulong id, string name, string code, float longitude, float latitude, float aMSL, string country) : base(classType, id)
+    public Airport(ulong id, string name, string code, float longitude, float latitude, float aMSL, string country) 
+        : base("AI", id)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Code = code ?? throw new ArgumentNullException(nameof(code));
@@ -153,12 +161,24 @@ internal class Airport : FlightAppObject
 
 internal class Flight : FlightAppObject
 {
-    public Flight(string classType, ulong id, ulong originAsID, ulong targetAsID, string takeoffTime, string landingTime, float longitude, float latitude, float aMSL, ulong planeID, ulong[] crewAsIDs, ulong[] loadAsIDs) : base(classType, id)
+    public Flight(
+        ulong id, 
+        ulong originAsID, 
+        ulong targetAsID, 
+        DateTime takeoffTime, 
+        DateTime landingTime, 
+        float? longitude, 
+        float? latitude, 
+        float? aMSL, 
+        ulong planeID, 
+        ulong[] crewAsIDs, 
+        ulong[] loadAsIDs)
+        : base("FL", id)
     {
         OriginAsID = originAsID;
         TargetAsID = targetAsID;
-        TakeoffTime = takeoffTime ?? throw new ArgumentNullException(nameof(takeoffTime));
-        LandingTime = landingTime ?? throw new ArgumentNullException(nameof(landingTime));
+        TakeoffTime = takeoffTime;
+        LandingTime = landingTime;
         Longitude = longitude;
         Latitude = latitude;
         AMSL = aMSL;
@@ -171,15 +191,15 @@ internal class Flight : FlightAppObject
 
     public ulong TargetAsID { get; }
 
-    public string TakeoffTime { get; }
+    public DateTime TakeoffTime { get; }
 
-    public string LandingTime { get; }
+    public DateTime LandingTime { get; }
 
-    public float Longitude { get; }
+    public float? Longitude { get; }
 
-    public float Latitude { get; }
+    public float? Latitude { get; }
 
-    public float AMSL { get; }
+    public float? AMSL { get; }
 
     public ulong PlaneID { get; }
 

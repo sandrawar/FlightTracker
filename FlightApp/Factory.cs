@@ -5,7 +5,7 @@ namespace FlightApp;
 
 internal interface IFlightAppObjectFactory
 {
-    FlightAppObject Create(string[] data);
+    FlightAppObject Create(string[] details);
 }
 
 internal class FlightAppDataFactory : IFlightAppObjectFactory 
@@ -25,117 +25,138 @@ internal class FlightAppDataFactory : IFlightAppObjectFactory
          };   
     }
 
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data == null)
+        if (details == null)
         {
-            throw new ArgumentNullException(nameof(data));
+            throw new ArgumentNullException(nameof(details));
         }
 
-        if (data.Length < 1)
+        if (details.Length < 1)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        if (!factories.TryGetValue(data[0], out var factory))
+        if (!factories.TryGetValue(details[0], out var factory))
         {
-            throw new ArgumentOutOfRangeException(nameof(data));
+            throw new ArgumentOutOfRangeException(nameof(details));
         }
 
-        return factory.Create(data);
+        return factory.Create(details);
     }
 }
 
 internal class CrewFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 8)
+        if (details.Length != 8)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new Crew(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), data[2], ulong.Parse(data[3], CultureInfo.InvariantCulture), data[4], data[5], ushort.Parse(data[6], CultureInfo.InvariantCulture), data[7]);
+        return new Crew(ulong.Parse(details[1], CultureInfo.InvariantCulture), details[2], ulong.Parse(details[3], CultureInfo.InvariantCulture), details[4], details[5], ushort.Parse(details[6], CultureInfo.InvariantCulture), details[7]);
     }
 }
 
 internal class PassangerFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 8)
+        if (details.Length != 8)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new Passanger(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), data[2], ulong.Parse(data[3], CultureInfo.InvariantCulture), data[4], data[5], data[6], ulong.Parse(data[7], CultureInfo.InvariantCulture));
+        return new Passanger(ulong.Parse(details[1], CultureInfo.InvariantCulture), details[2], ulong.Parse(details[3], CultureInfo.InvariantCulture), details[4], details[5], details[6], ulong.Parse(details[7], CultureInfo.InvariantCulture));
     }
 }
 
 internal class CargoFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 5)
+        if (details.Length != 5)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new Cargo(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), float.Parse(data[2], CultureInfo.InvariantCulture), data[3], data[4]);
+        return new Cargo(ulong.Parse(details[1], CultureInfo.InvariantCulture), float.Parse(details[2], CultureInfo.InvariantCulture), details[3], details[4]);
     }
 }
 
 internal class CargoPlaneFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 6)
+        if (details.Length != 6)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new CargoPlane(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), data[2], data[3], data[4], float.Parse(data[5], CultureInfo.InvariantCulture));
+        return new CargoPlane(ulong.Parse(details[1], CultureInfo.InvariantCulture), details[2], details[3], details[4], float.Parse(details[5], CultureInfo.InvariantCulture));
     }
 }
 
 internal class PassangerPlaneFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 8)
+        if (details.Length != 8)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new PassangerPlane(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), data[2], data[3], data[4], ushort.Parse(data[5], CultureInfo.InvariantCulture), ushort.Parse(data[6], CultureInfo.InvariantCulture), ushort.Parse(data[7], CultureInfo.InvariantCulture));
+        return new PassangerPlane(ulong.Parse(details[1], CultureInfo.InvariantCulture), details[2], details[3], details[4], ushort.Parse(details[5], CultureInfo.InvariantCulture), ushort.Parse(details[6], CultureInfo.InvariantCulture), ushort.Parse(details[7], CultureInfo.InvariantCulture));
     }
 }
 
 internal class AirportFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 8)
+        if (details.Length != 8)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        return new Airport(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), data[2], data[3], float.Parse(data[4], CultureInfo.InvariantCulture), float.Parse(data[5], CultureInfo.InvariantCulture), float.Parse(data[6], CultureInfo.InvariantCulture), data[7]);
+        return new Airport(ulong.Parse(details[1], CultureInfo.InvariantCulture), details[2], details[3], float.Parse(details[4], CultureInfo.InvariantCulture), float.Parse(details[5], CultureInfo.InvariantCulture), float.Parse(details[6], CultureInfo.InvariantCulture), details[7]);
     }
 }
 
 internal class FlightFactory : IFlightAppObjectFactory
 {
-    public FlightAppObject Create(string[] data)
+    public FlightAppObject Create(string[] details)
     {
-        if (data.Length != 12)
+        if (details.Length != 12)
         {
-            throw new ArgumentException(nameof(data));
+            throw new ArgumentException(nameof(details));
         }
 
-        var crewTab = string.Concat(data[10].Skip(1).SkipLast(1)).Split(';').Select(s => ulong.Parse(s, CultureInfo.InvariantCulture)).ToArray();
-        var loadTab = string.Concat(data[11].Skip(1).SkipLast(1)).Split(';').Select(s => ulong.Parse(s, CultureInfo.InvariantCulture)).ToArray();
+        var crewTab = string.Concat(details[10].Skip(1).SkipLast(1)).Split(';').Select(s => ulong.Parse(s, CultureInfo.InvariantCulture)).ToArray();
+        var loadTab = string.Concat(details[11].Skip(1).SkipLast(1)).Split(';').Select(s => ulong.Parse(s, CultureInfo.InvariantCulture)).ToArray();
 
-        return new Flight(data[0], ulong.Parse(data[1], CultureInfo.InvariantCulture), ulong.Parse(data[2], CultureInfo.InvariantCulture), ulong.Parse(data[3], CultureInfo.InvariantCulture), data[4], data[5], float.Parse(data[6], CultureInfo.InvariantCulture), float.Parse(data[7], CultureInfo.InvariantCulture), float.Parse(data[8], CultureInfo.InvariantCulture), ulong.Parse(data[9], CultureInfo.InvariantCulture), crewTab, loadTab);
+        return new Flight(
+            ulong.Parse(details[1], CultureInfo.InvariantCulture),
+            ulong.Parse(details[2], CultureInfo.InvariantCulture),
+            ulong.Parse(details[3], CultureInfo.InvariantCulture),
+            convertToTime(details[4]),
+            convertToTime(details[5]),
+            float.Parse(details[6], CultureInfo.InvariantCulture),
+            float.Parse(details[7], CultureInfo.InvariantCulture),
+            float.Parse(details[8], CultureInfo.InvariantCulture),
+            ulong.Parse(details[9], CultureInfo.InvariantCulture),
+            crewTab,
+            loadTab);
+
+        DateTime convertToTime(string data)
+        {
+            var now = DateTime.Now;
+            var info = data.Split(":");
+            int hour = int.Parse(info[0], CultureInfo.InvariantCulture);
+            int minute = int.Parse(info[1], CultureInfo.InvariantCulture);
+
+            return new DateTime(now.Year, now.Month, now.Day, hour, minute, 0);
+        }
     }
 }

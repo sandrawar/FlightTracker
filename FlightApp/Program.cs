@@ -7,9 +7,9 @@ internal class Program
     {
         PrintManual();
 
-        var logic = new FlightAppLogic();
+        var logic = new FlightAppLogic(args[0]);
 
-        logic.StartNetworkSimulator(args[0]);
+        logic.StartNetworkSimulator();
 
         bool endApplication = false;
         while(!endApplication)
