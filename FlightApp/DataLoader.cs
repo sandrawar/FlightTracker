@@ -7,11 +7,11 @@ internal interface IDataLoader
 
 internal class FtrDataLoader : IDataLoader
 {
-    private readonly IFlightAppObjectFactory factory;
+    private readonly IFlightAppFtrReader factory;
 
     public FtrDataLoader()
     {
-        factory = new FlightAppDataFactory();  
+        factory = new FlightAppFtrReader();  
     }
 
     public IEnumerable<FlightAppObject> Load(string filePath)
