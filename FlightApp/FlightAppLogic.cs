@@ -19,21 +19,15 @@ public class FlightAppLogic
 
 	public void StartNetworkSimulator()
 	{
-		//Thread t = new Thread(new ThreadStart(Simulate));
-		//t.IsBackground = true;
-		//t.Start();
-
-		Task.Run(() =>
-		{
-			simulator.Run();
-			Console.WriteLine("simulator end");
-		});
+		Thread t = new Thread(new ThreadStart(Simulate));
+		t.IsBackground = true;
+		t.Start();
 	}
 
-	//private void Simulate()
-	//{
-	//	simulator.Run();
-	//}
+	private void Simulate()
+	{
+		simulator.Run();
+	}
 
 	private void Simulator_OnNewDataReady(object sender, NewDataReadyArgs args)
 	{

@@ -7,7 +7,7 @@ internal interface IDataLoader
 
 internal class FtrDataLoader : IDataLoader
 {
-    private readonly IFlightAppFtrReader factory;
+    private readonly IFlightAppObjectFtrReader factory;
 
     public FtrDataLoader()
     {
@@ -38,7 +38,7 @@ internal class FtrDataLoader : IDataLoader
                 var line = reader.ReadLine();
                 if (!string.IsNullOrEmpty(line))
                 {
-                    yield return factory.Create(line.Split(","));
+                    yield return factory.Read(line.Split(","));
                 }
             }
         }

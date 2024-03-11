@@ -3,17 +3,16 @@ using System.Globalization;
 
 namespace FlightApp;
 
-internal interface IFlightAppFtrReader
+internal interface IFlightAppObjectFtrReader: IFlightAppObjectReader<string[]>
 {
-    FlightAppObject Create(string[] details);
 }
 
-internal class FlightAppFtrReader : IFlightAppFtrReader 
+internal class FlightAppFtrReader : IFlightAppObjectFtrReader
 {
-    private readonly IDictionary<string, IFlightAppFtrReader> factories;
+    private readonly IDictionary<string, IFlightAppObjectFtrReader> factories;
     public FlightAppFtrReader()
     {
-         factories = new Dictionary<string, IFlightAppFtrReader>()
+         factories = new Dictionary<string, IFlightAppObjectFtrReader>()
          {
              {"C", new CrewFtrReader() },
              {"P", new PassangerFtrReader() },
@@ -25,153 +24,153 @@ internal class FlightAppFtrReader : IFlightAppFtrReader
          };   
     }
 
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details == null)
+        if (data == null)
         {
-            throw new ArgumentNullException(nameof(details));
+            throw new ArgumentNullException(nameof(data));
         }
 
-        if (details.Length < 1)
+        if (data.Length < 1)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
-        if (!factories.TryGetValue(details[0], out var factory))
+        if (!factories.TryGetValue(data[0], out var factory))
         {
-            throw new ArgumentOutOfRangeException(nameof(details));
+            throw new ArgumentOutOfRangeException(nameof(data));
         }
 
-        return factory.Create(details);
+        return factory.Read(data);
     }
 }
 
-internal class CrewFtrReader : IFlightAppFtrReader
+internal class CrewFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 8)
+        if (data.Length != 8)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new Crew(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            details[2], 
-            ulong.Parse(details[3], CultureInfo.InvariantCulture), 
-            details[4], 
-            details[5], 
-            ushort.Parse(details[6], CultureInfo.InvariantCulture), 
-            details[7]);
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            data[2], 
+            ulong.Parse(data[3], CultureInfo.InvariantCulture), 
+            data[4], 
+            data[5], 
+            ushort.Parse(data[6], CultureInfo.InvariantCulture), 
+            data[7]);
     }
 }
 
-internal class PassangerFtrReader : IFlightAppFtrReader
+internal class PassangerFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 8)
+        if (data.Length != 8)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new Passanger(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            details[2], 
-            ulong.Parse(details[3], CultureInfo.InvariantCulture), 
-            details[4], 
-            details[5], 
-            details[6], 
-            ulong.Parse(details[7], CultureInfo.InvariantCulture));
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            data[2], 
+            ulong.Parse(data[3], CultureInfo.InvariantCulture), 
+            data[4], 
+            data[5], 
+            data[6], 
+            ulong.Parse(data[7], CultureInfo.InvariantCulture));
     }
 }
 
-internal class CargoFtrReader : IFlightAppFtrReader
+internal class CargoFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 5)
+        if (data.Length != 5)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new Cargo(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            float.Parse(details[2], CultureInfo.InvariantCulture), 
-            details[3], 
-            details[4]);
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            float.Parse(data[2], CultureInfo.InvariantCulture), 
+            data[3], 
+            data[4]);
     }
 }
 
-internal class CargoPlaneFtrReader : IFlightAppFtrReader
+internal class CargoPlaneFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 6)
+        if (data.Length != 6)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new CargoPlane(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            details[2], 
-            details[3], 
-            details[4], 
-            float.Parse(details[5], CultureInfo.InvariantCulture));
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            data[2], 
+            data[3], 
+            data[4], 
+            float.Parse(data[5], CultureInfo.InvariantCulture));
     }
 }
 
-internal class PassangerPlaneFtrReader : IFlightAppFtrReader
+internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 8)
+        if (data.Length != 8)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new PassangerPlane(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            details[2], 
-            details[3], 
-            details[4], 
-            ushort.Parse(details[5], CultureInfo.InvariantCulture), 
-            ushort.Parse(details[6], CultureInfo.InvariantCulture), 
-            ushort.Parse(details[7], CultureInfo.InvariantCulture));
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            data[2], 
+            data[3], 
+            data[4], 
+            ushort.Parse(data[5], CultureInfo.InvariantCulture), 
+            ushort.Parse(data[6], CultureInfo.InvariantCulture), 
+            ushort.Parse(data[7], CultureInfo.InvariantCulture));
     }
 }
 
-internal class AirportFtrReader : IFlightAppFtrReader
+internal class AirportFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 8)
+        if (data.Length != 8)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         return new Airport(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture), 
-            details[2], 
-            details[3], 
-            float.Parse(details[4], CultureInfo.InvariantCulture), 
-            float.Parse(details[5], CultureInfo.InvariantCulture), 
-            float.Parse(details[6], CultureInfo.InvariantCulture), 
-            details[7]);
+            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
+            data[2], 
+            data[3], 
+            float.Parse(data[4], CultureInfo.InvariantCulture), 
+            float.Parse(data[5], CultureInfo.InvariantCulture), 
+            float.Parse(data[6], CultureInfo.InvariantCulture), 
+            data[7]);
     }
 }
 
-internal class FlightFtrReader : IFlightAppFtrReader
+internal class FlightFtrReader : IFlightAppObjectFtrReader
 {
-    public FlightAppObject Create(string[] details)
+    public FlightAppObject Read(string[] data)
     {
-        if (details.Length != 12)
+        if (data.Length != 12)
         {
-            throw new ArgumentException(nameof(details));
+            throw new ArgumentException(nameof(data));
         }
 
         var crewTab = string.Concat(
-            details[10]
+            data[10]
             .Skip(1)
             .SkipLast(1))
             .Split(';')
@@ -179,7 +178,7 @@ internal class FlightFtrReader : IFlightAppFtrReader
             .ToArray();
 
         var loadTab = string.Concat(
-            details[11]
+            data[11]
             .Skip(1)
             .SkipLast(1))
             .Split(';')
@@ -187,22 +186,22 @@ internal class FlightFtrReader : IFlightAppFtrReader
             .ToArray();
 
         return new Flight(
-            ulong.Parse(details[1], CultureInfo.InvariantCulture),
-            ulong.Parse(details[2], CultureInfo.InvariantCulture),
-            ulong.Parse(details[3], CultureInfo.InvariantCulture),
-            convertToTime(details[4]),
-            convertToTime(details[5]),
-            float.Parse(details[6], CultureInfo.InvariantCulture),
-            float.Parse(details[7], CultureInfo.InvariantCulture),
-            float.Parse(details[8], CultureInfo.InvariantCulture),
-            ulong.Parse(details[9], CultureInfo.InvariantCulture),
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            ulong.Parse(data[2], CultureInfo.InvariantCulture),
+            ulong.Parse(data[3], CultureInfo.InvariantCulture),
+            convertToTime(data[4]),
+            convertToTime(data[5]),
+            float.Parse(data[6], CultureInfo.InvariantCulture),
+            float.Parse(data[7], CultureInfo.InvariantCulture),
+            float.Parse(data[8], CultureInfo.InvariantCulture),
+            ulong.Parse(data[9], CultureInfo.InvariantCulture),
             crewTab,
             loadTab);
 
-        DateTime convertToTime(string data)
+        DateTime convertToTime(string dateInfo)
         {
             var now = DateTime.Now;
-            var info = data.Split(":");
+            var info = dateInfo.Split(":");
             int hour = int.Parse(info[0], CultureInfo.InvariantCulture);
             int minute = int.Parse(info[1], CultureInfo.InvariantCulture);
 

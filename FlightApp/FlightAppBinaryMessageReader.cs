@@ -2,9 +2,8 @@
 
 namespace FlightApp
 {
-    internal interface IFlightAppBinaryMessageReader
+    internal interface IFlightAppBinaryMessageReader: IFlightAppObjectReader<byte[]>
     {
-        FlightAppObject Read(byte[] data);
     }
 
     internal class FlightAppBinaryMessageReader : IFlightAppBinaryMessageReader
