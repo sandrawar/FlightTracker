@@ -9,26 +9,35 @@ internal class Program
 
         var logic = new FlightAppLogic(args[0]);
 
-        logic.StartNetworkSimulator();
-
-        bool endApplication = false;
-        while(!endApplication)
+        try
         {
-            var command = Console.ReadLine();
-            switch(command)
+
+            logic.StartNetworkSimulator();
+
+            bool endApplication = false;
+            while (!endApplication)
             {
-                case "exit":
-                    endApplication = true; 
-                    break;
-                case "print":
-                    logic.MakeSnapshot();
-                    Console.WriteLine("Snapshot created");
-                    break;
-                default:
-                    Console.WriteLine("Unrecognized command");
-                    PrintManual();
-                    break;
+                var command = Console.ReadLine();
+                switch (command)
+                {
+                    case "exit":
+                        endApplication = true;
+                        break;
+                    case "print":
+                        logic.MakeSnapshot();
+                        Console.WriteLine("Snapshot created");
+                        break;
+                    default:
+                        Console.WriteLine("Unrecognized command");
+                        PrintManual();
+                        break;
+                }
             }
+
+        }
+        finally
+        {
+            logic.Dispose();
         }
 
         void PrintManual()
