@@ -2,5 +2,5 @@
 
 internal interface IFlightAppObjectReader<TRawData>
 {
-    FlightAppObject Read(TRawData data);
+    void AddToFlightAppCompleteData(TRawData data, IFlightAppCompleteData flightAppCompleteData);
 }

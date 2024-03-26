@@ -24,7 +24,7 @@ namespace FlightApp
             };
         }
 
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var objectType = Encoding.ASCII.GetString(data, 0, 3);
 
@@ -32,117 +32,125 @@ namespace FlightApp
             {
                 throw new ArgumentOutOfRangeException(nameof(data));
             }
-            return reader.Read(data);
+            reader.AddToFlightAppCompleteData(data, flightAppCompleteData);
         }
     }
 
     internal class CrewBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var nameLength = BitConverter.ToUInt16(data, 15);
             var emailLength = BitConverter.ToUInt16(data, 31 + nameLength);
 
-            return new Crew(
+            flightAppCompleteData.Add(new Crew(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 17, nameLength),
                 BitConverter.ToUInt16(data, 17 + nameLength),
                 Encoding.ASCII.GetString(data, 19 + nameLength, 12),
                 Encoding.ASCII.GetString(data, 33 + nameLength, emailLength),
                 BitConverter.ToUInt16(data, 33 + nameLength + emailLength),
-                Encoding.ASCII.GetString(data, 35 + nameLength + emailLength, 1));
+                GetRole(Encoding.ASCII.GetString(data, 35 + nameLength + emailLength, 1))));
+
+            string GetRole(string roleId) => roleId switch
+            {
+                "C" => "Captain",
+                "A" => "Attendant",
+                "O" => "Other",
+                _ => "Other"
+            };
         }
     }
 
     internal class PassangerBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var nameLength = BitConverter.ToUInt16(data, 15);
             var emailLength = BitConverter.ToUInt16(data, 31 + nameLength);
 
-            return new Passanger(
+            flightAppCompleteData.Add(new Passanger(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 17, nameLength),
                 BitConverter.ToUInt16(data, 17 + nameLength),
                 Encoding.ASCII.GetString(data, 19 + nameLength, 12),
                 Encoding.ASCII.GetString(data, 33 + nameLength, emailLength),
                 Encoding.ASCII.GetString(data, 33 + nameLength + emailLength, 1),
-                BitConverter.ToUInt64(data, 34 + nameLength + emailLength));
+                BitConverter.ToUInt64(data, 34 + nameLength + emailLength)));
         }
     }
 
     internal class CargoBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var descriptionLength = BitConverter.ToUInt16(data, 25);
 
-            return new Cargo(
+            flightAppCompleteData.Add(new Cargo(
                 BitConverter.ToUInt64(data, 7),
                 BitConverter.ToSingle(data, 15),
                 Encoding.ASCII.GetString(data, 19, 6),
-                Encoding.ASCII.GetString(data, 27, descriptionLength));
+                Encoding.ASCII.GetString(data, 27, descriptionLength)));
         }
     }
 
     internal class CargoPlaneBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var modelLength = BitConverter.ToUInt16(data, 28);
 
-            return new CargoPlane(
+            flightAppCompleteData.Add(new CargoPlane(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 15, 10).TrimEnd('\0'),
                 Encoding.ASCII.GetString(data, 25, 3),
                 Encoding.ASCII.GetString(data, 30, modelLength),
-                BitConverter.ToSingle(data, 30 + modelLength));
+                BitConverter.ToSingle(data, 30 + modelLength)));
         }
     }
 
     internal class PassangerPlaneBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var modelLength = BitConverter.ToUInt16(data, 28);
 
-            return new PassangerPlane(
+            flightAppCompleteData.Add(new PassangerPlane(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 15, 10).TrimEnd('\0'),
                 Encoding.ASCII.GetString(data, 25, 3),
                 Encoding.ASCII.GetString(data, 30, modelLength),
                 BitConverter.ToUInt16(data, 30 + modelLength),
                 BitConverter.ToUInt16(data, 32 + modelLength),
-                BitConverter.ToUInt16(data, 34 + modelLength));
+                BitConverter.ToUInt16(data, 34 + modelLength)));
         }
     }
 
     internal class AirportBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var nameLength = BitConverter.ToUInt16(data, 15);
 
-            return new Airport(
+            flightAppCompleteData.Add(new Airport(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 17, nameLength),
                 Encoding.ASCII.GetString(data, 17 + nameLength, 3),
                 BitConverter.ToSingle(data, 20 + nameLength),
                 BitConverter.ToSingle(data, 24 + nameLength),
                 BitConverter.ToSingle(data, 28 + nameLength),
-                Encoding.ASCII.GetString(data, 32 + nameLength, 3));
+                Encoding.ASCII.GetString(data, 32 + nameLength, 3)));
         }
     }
 
     internal class FlightBinaryMessagReader : IFlightAppBinaryMessageReader
     {
-        public FlightAppObject Read(byte[] data)
+        public void AddToFlightAppCompleteData(byte[] data, IFlightAppCompleteData flightAppCompleteData)
         {
             var crewCount = BitConverter.ToUInt16(data, 55);
             var loadCount = BitConverter.ToUInt16(data, 57 + 8 * crewCount);
 
-            return new Flight(
+            flightAppCompleteData.Add(new Flight(
                 BitConverter.ToUInt64(data, 7),
                 BitConverter.ToUInt64(data, 15),
                 BitConverter.ToUInt64(data, 23),
@@ -154,7 +162,7 @@ namespace FlightApp
                 BitConverter.ToUInt64(data, 47),
                 readIds(57, crewCount),
                 readIds(57 + 8 * crewCount, loadCount)
-                );
+                ));
 
             ulong[] readIds(int offset, ushort count)
             {

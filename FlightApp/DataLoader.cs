@@ -2,7 +2,7 @@
 
 internal interface IDataLoader
 {
-    IEnumerable<FlightAppObject> Load(string filePath);
+    void Load(Stream data, IFlightAppCompleteData flightAppCompleteData);
 }
 
 internal class FtrDataLoader : IDataLoader
@@ -14,17 +14,17 @@ internal class FtrDataLoader : IDataLoader
         factory = new FlightAppFtrReader();  
     }
 
-    public IEnumerable<FlightAppObject> Load(string filePath)
+    public void Load(string filePath, IFlightAppCompleteData flightAppCompleteData)
     {
         if (!File.Exists(filePath))
         {
             throw new FileNotFoundException();
         }
 
-        return Load(File.OpenRead(filePath));
+        Load(File.OpenRead(filePath), flightAppCompleteData);
     }
 
-    public IEnumerable<FlightAppObject> Load(Stream data)
+    public void Load(Stream data, IFlightAppCompleteData flightAppCompleteData)
     {
         if (data is null)
         {
@@ -38,7 +38,7 @@ internal class FtrDataLoader : IDataLoader
                 var line = reader.ReadLine();
                 if (!string.IsNullOrEmpty(line))
                 {
-                    yield return factory.Read(line.Split(","));
+                    factory.AddToFlightAppCompleteData(line.Split(","), flightAppCompleteData);
                 }
             }
         }
