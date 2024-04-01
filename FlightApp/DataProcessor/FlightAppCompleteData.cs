@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FlightApp
+namespace FlightApp.DataProcessor
 {
     internal interface IFlightAppCompleteData
     {

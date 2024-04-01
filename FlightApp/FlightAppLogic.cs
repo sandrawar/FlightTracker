@@ -8,13 +8,13 @@ internal class FlightAppLogic: IDisposable
 {
 	private readonly IFlightAppDataProcessor dataProcessor;
 	private readonly Timer timer;
-    private bool disposedValue;
+	private bool disposedValue;
 
 	public FlightAppLogic(IFlightAppDataProcessor flightAppDataProcessor)
 	{
 		dataProcessor = flightAppDataProcessor;
 		timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
-    }
+	}
 
 	public void StartNetworkSimulator()
 	{
@@ -38,12 +38,12 @@ internal class FlightAppLogic: IDisposable
 		var generator = new NewsGenerator(
 			new INewsReporter[] {
 				new Televison("Telewizja Abelowa"),
-                new Televison("Kanał TV-tensor"),
+				new Televison("Kanał TV-tensor"),
 				new Radio("Radio Kwantyfikator"),
-                new Radio("Radio Shmem"),
-                new Newspaper("Gazeta Kategoryczna"),
-                new Newspaper("Dziennik Politechniczny"),
-            },
+				new Radio("Radio Shmem"),
+				new Newspaper("Gazeta Kategoryczna"),
+				new Newspaper("Dziennik Politechniczny"),
+			},
 			[
 			.. dataProcessor.FlightAppCompleteData.GetAirports().Values,
 			.. dataProcessor.FlightAppCompleteData.GetCargoPlanes(),
@@ -56,13 +56,13 @@ internal class FlightAppLogic: IDisposable
 			info = generator.GenerateNextNews();
 			if (info != null)
 			{
-                yield return info;
+				yield return info;
 			}
 		}
 		while (info != null);
 	}
 
-    private void MapRefresh(object? state)
+	private void MapRefresh(object? state)
 	{
 		var sourceFlights = dataProcessor.FlightAppCompleteData.GetFlights();
 		var sourceAirports = dataProcessor.FlightAppCompleteData.GetAirports();

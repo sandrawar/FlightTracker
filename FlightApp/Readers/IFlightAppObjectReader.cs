@@ -1,4 +1,6 @@
-﻿namespace FlightApp.Readers;
+﻿using FlightApp.DataProcessor;
+
+namespace FlightApp.Readers;
 
 internal interface IFlightAppObjectReader<TRawData>
 {

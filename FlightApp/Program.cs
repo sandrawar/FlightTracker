@@ -1,6 +1,4 @@
-﻿
-using FlightApp;
-using FlightApp.DataProcessor;
+﻿using FlightApp.DataProcessor;
 using FlightApp.Readers;
 
 internal class Program
