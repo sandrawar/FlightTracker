@@ -1,6 +1,7 @@
 ﻿
 using FlightApp;
 using FlightApp.DataProcessor;
+using FlightApp.Readers;
 
 internal class Program
 {
@@ -10,8 +11,8 @@ internal class Program
         PrintManual();
 
         IFlightAppDataProcessor dataProcessor = useSimulator
-            ? new NetworkSimulatorDataProcessor(args[0])
-            : new FtrDataProcessor(args[0]);
+            ? new NetworkSimulatorDataProcessor(args[0], new FlightAppBinaryMessageReader(), new FlightAppCompleteData())
+            : new FtrDataProcessor(args[0], new FlightAppFtrReader(), new FlightAppCompleteData());
 
         var logic = new FlightAppLogic(dataProcessor);
 

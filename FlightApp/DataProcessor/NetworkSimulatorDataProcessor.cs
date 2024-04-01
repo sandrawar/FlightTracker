@@ -5,20 +5,21 @@ namespace FlightApp.DataProcessor
 {
     internal class NetworkSimulatorDataProcessor : IFlightAppDataProcessor
     {
-        private IFlightAppCompleteData? flightAppCompleteData;
         private readonly IFlightAppBinaryMessageReader messageReader;
         private readonly IDataSource simulator;
 
-        public NetworkSimulatorDataProcessor(string dataFilePath)
+        public NetworkSimulatorDataProcessor(string dataFilePath, IFlightAppBinaryMessageReader flightAppBinaryMessageReader, IFlightAppCompleteData flightAppCompleteData)
         {
-            this.messageReader = new FlightAppBinaryMessageReader();
-            this.simulator = new NetworkSourceSimulator.NetworkSourceSimulator(dataFilePath, 1, 5);
-            this.simulator.OnNewDataReady += Simulator_OnNewDataReady;
+            FlightAppCompleteData = flightAppCompleteData;
+            messageReader = flightAppBinaryMessageReader;
+            simulator = new NetworkSourceSimulator.NetworkSourceSimulator(dataFilePath, 1, 5);
+            simulator.OnNewDataReady += Simulator_OnNewDataReady;
         }
 
-        public void Start(IFlightAppCompleteData flightAppCompleteData)
+        public IFlightAppCompleteData FlightAppCompleteData { get; }
+
+        public void Start()
         {
-            this.flightAppCompleteData = flightAppCompleteData;
             Thread simulateThread = new Thread(() => simulator.Run());
             simulateThread.IsBackground = true;
             simulateThread.Start();
@@ -27,7 +28,7 @@ namespace FlightApp.DataProcessor
         private void Simulator_OnNewDataReady(object sender, NewDataReadyArgs args)
         {
             var message = simulator.GetMessageAt(args.MessageIndex);
-            messageReader.AddToFlightAppCompleteData(message.MessageBytes, flightAppCompleteData!);
+            messageReader.AddToFlightAppCompleteData(message.MessageBytes, FlightAppCompleteData);
         }
 
     }

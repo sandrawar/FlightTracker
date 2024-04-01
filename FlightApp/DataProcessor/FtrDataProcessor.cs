@@ -4,26 +4,29 @@ namespace FlightApp.DataProcessor;
 
 internal class FtrDataProcessor : IFlightAppDataProcessor
 {
-    private readonly IFlightAppObjectFtrReader factory;
-    private readonly string dataFilePath;
+    private readonly IFlightAppObjectFtrReader reader;
+    private readonly string dataPath;
 
-    public FtrDataProcessor(string dataFilePath)
+    public FtrDataProcessor(string dataFilePath, IFlightAppObjectFtrReader flightAppObjectFtrReader, IFlightAppCompleteData flightAppCompleteData)
     {
-        this.factory = new FlightAppFtrReader();
-        this.dataFilePath = dataFilePath;
+        dataPath = dataFilePath;
+        FlightAppCompleteData = flightAppCompleteData;
+        reader = flightAppObjectFtrReader;
     }
 
-    public void Start(IFlightAppCompleteData flightAppCompleteData)
+    public IFlightAppCompleteData FlightAppCompleteData { get; }
+
+    public void Start()
     {
-        if (!File.Exists(dataFilePath))
+        if (!File.Exists(dataPath))
         {
             throw new FileNotFoundException();
         }
 
-        Load(File.OpenRead(dataFilePath), flightAppCompleteData);
+        Load(File.OpenRead(dataPath));
     }
 
-    private void Load(Stream data, IFlightAppCompleteData flightAppCompleteData)
+    private void Load(Stream data)
     {
         if (data is null)
         {
@@ -37,7 +40,7 @@ internal class FtrDataProcessor : IFlightAppDataProcessor
                 var line = reader.ReadLine();
                 if (!string.IsNullOrEmpty(line))
                 {
-                    factory.AddToFlightAppCompleteData(line.Split(","), flightAppCompleteData);
+                    this.reader.AddToFlightAppCompleteData(line.Split(","), FlightAppCompleteData);
                 }
             }
         }

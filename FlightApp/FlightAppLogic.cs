@@ -6,21 +6,19 @@ using Mapsui.Projections;
 
 internal class FlightAppLogic: IDisposable
 {
-	private readonly IFlightAppCompleteData flightAppCompleteData;
-	private readonly IFlightAppDataProcessor flightAppDataProcessor;
+	private readonly IFlightAppDataProcessor dataProcessor;
 	private readonly Timer timer;
     private bool disposedValue;
 
 	public FlightAppLogic(IFlightAppDataProcessor flightAppDataProcessor)
 	{
-		this.flightAppCompleteData = new FlightAppCompleteData();
-		this.flightAppDataProcessor = flightAppDataProcessor;
-		this.timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
+		dataProcessor = flightAppDataProcessor;
+		timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
     }
 
 	public void StartNetworkSimulator()
 	{
-		flightAppDataProcessor.Start(flightAppCompleteData);
+		dataProcessor.Start();
 		Thread mapThread = new Thread(() => Runner.Run());
 		mapThread.IsBackground = true;
 		mapThread.Start();
@@ -31,7 +29,7 @@ internal class FlightAppLogic: IDisposable
 	{
 		var snapshotFileName = $"snapshot_{DateTime.Now:HH_mm_ss}.json";
 		IDataSerializer serializer = new DataJsonSerializer();
-		var data = flightAppCompleteData.GetCompleteData();
+		var data = dataProcessor.FlightAppCompleteData.GetCompleteData();
 		serializer.Serialize(data, snapshotFileName);
 	}
 
@@ -47,9 +45,9 @@ internal class FlightAppLogic: IDisposable
                 new Newspaper("Dziennik Politechniczny"),
             },
 			[
-			.. flightAppCompleteData.GetAirports().Values,
-			.. flightAppCompleteData.GetCargoPlanes(),
-			.. flightAppCompleteData.GetPassangerPlanes()
+			.. dataProcessor.FlightAppCompleteData.GetAirports().Values,
+			.. dataProcessor.FlightAppCompleteData.GetCargoPlanes(),
+			.. dataProcessor.FlightAppCompleteData.GetPassangerPlanes()
 			]);
 
 		string? info;
@@ -66,8 +64,8 @@ internal class FlightAppLogic: IDisposable
 
     private void MapRefresh(object? state)
 	{
-		var sourceFlights = flightAppCompleteData.GetFlights();
-		var sourceAirports = flightAppCompleteData.GetAirports();
+		var sourceFlights = dataProcessor.FlightAppCompleteData.GetFlights();
+		var sourceAirports = dataProcessor.FlightAppCompleteData.GetAirports();
 		List<FlightGUI> flights = new List<FlightGUI>();
 
 		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)).Where(fi => fi.isLive))

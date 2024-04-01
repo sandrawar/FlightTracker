@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlightApp.News
+﻿namespace FlightApp.News
 {
     internal class NewsGenerator
     {
@@ -22,36 +15,36 @@ namespace FlightApp.News
             this.reporters = reporters;
             this.reportables = reportables;
 
-            this.reportersEnumerator = reporters.GetEnumerator();
-            this.reportersEnumerator.MoveNext();
-            this.reportablesEnumerator = reportables.GetEnumerator();
-            this.reportablesEnumerator.MoveNext();
+            reportersEnumerator = reporters.GetEnumerator();
+            reportersEnumerator.MoveNext();
+            reportablesEnumerator = reportables.GetEnumerator();
+            reportablesEnumerator.MoveNext();
 
-            this.reportablesEnumerator.Reset();
+            reportablesEnumerator.Reset();
         }
 
         public string? GenerateNextNews()
         {
             string? info = null;
-            if (this.reportersEnumerator.Current != null)
+            if (reportersEnumerator.Current != null)
             {
-                if (this.reportablesEnumerator.Current != null)
+                if (reportablesEnumerator.Current != null)
                 {
-                    info = this.reportersEnumerator.Current.Report(this.reportablesEnumerator.Current);
-                    this.reportablesEnumerator.MoveNext();
+                    info = reportersEnumerator.Current.Report(reportablesEnumerator.Current);
+                    reportablesEnumerator.MoveNext();
                 }
-                else if (this.reportablesEnumerator.MoveNext())
+                else if (reportablesEnumerator.MoveNext())
                 {
-                    info = this.reportersEnumerator.Current.Report(this.reportablesEnumerator.Current!);
-                    this.reportablesEnumerator.MoveNext();
+                    info = reportersEnumerator.Current.Report(reportablesEnumerator.Current!);
+                    reportablesEnumerator.MoveNext();
                 }
-                else if (this.reportersEnumerator.MoveNext())
+                else if (reportersEnumerator.MoveNext())
                 {
-                    this.reportablesEnumerator.Reset();
-                    if (this.reportablesEnumerator.MoveNext())
+                    reportablesEnumerator.Reset();
+                    if (reportablesEnumerator.MoveNext())
                     {
-                        info = this.reportersEnumerator.Current.Report(this.reportablesEnumerator.Current!);
-                        this.reportablesEnumerator.MoveNext();
+                        info = reportersEnumerator.Current.Report(reportablesEnumerator.Current!);
+                        reportablesEnumerator.MoveNext();
                     }
                 }
             }
