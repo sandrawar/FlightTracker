@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace FlightApp
+namespace FlightApp.Readers
 {
-    internal interface IFlightAppBinaryMessageReader: IFlightAppObjectReader<byte[]>
+    internal interface IFlightAppBinaryMessageReader : IFlightAppObjectReader<byte[]>
     {
     }
 

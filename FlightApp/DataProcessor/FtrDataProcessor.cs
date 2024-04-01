@@ -1,30 +1,29 @@
-﻿namespace FlightApp;
+﻿using FlightApp.Readers;
 
-internal interface IDataLoader
-{
-    void Load(Stream data, IFlightAppCompleteData flightAppCompleteData);
-}
+namespace FlightApp.DataProcessor;
 
-internal class FtrDataLoader : IDataLoader
+internal class FtrDataProcessor : IFlightAppDataProcessor
 {
     private readonly IFlightAppObjectFtrReader factory;
+    private readonly string dataFilePath;
 
-    public FtrDataLoader()
+    public FtrDataProcessor(string dataFilePath)
     {
-        factory = new FlightAppFtrReader();  
+        this.factory = new FlightAppFtrReader();
+        this.dataFilePath = dataFilePath;
     }
 
-    public void Load(string filePath, IFlightAppCompleteData flightAppCompleteData)
+    public void Start(IFlightAppCompleteData flightAppCompleteData)
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(dataFilePath))
         {
             throw new FileNotFoundException();
         }
 
-        Load(File.OpenRead(filePath), flightAppCompleteData);
+        Load(File.OpenRead(dataFilePath), flightAppCompleteData);
     }
 
-    public void Load(Stream data, IFlightAppCompleteData flightAppCompleteData)
+    private void Load(Stream data, IFlightAppCompleteData flightAppCompleteData)
     {
         if (data is null)
         {

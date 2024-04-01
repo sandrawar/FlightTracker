@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using FlightApp.News;
+using System.Text.Json.Serialization;
 
 namespace FlightApp;
 
@@ -105,7 +106,7 @@ internal abstract class Plane : FlightAppObject
     public string Model { get; }
 }
 
-internal class CargoPlane : Plane
+internal class CargoPlane : Plane, IReportable
 {
     public CargoPlane(ulong id, string serial, string country, string model, float maxLoad) 
         : base("CP", id, serial, country, model)
@@ -114,9 +115,11 @@ internal class CargoPlane : Plane
     }
 
     public float MaxLoad { get; }
+
+    public string? Name => null;
 }
 
-internal class PassangerPlane : Plane
+internal class PassangerPlane : Plane, IReportable
 {
     public PassangerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize) 
         : base("PP", id, serial, country, model)
@@ -131,9 +134,11 @@ internal class PassangerPlane : Plane
     public ushort BuisnessClassSize { get; }
 
     public ushort EconomyClassSize { get; }
+
+    public string? Name => null;
 }
 
-internal class Airport : FlightAppObject
+internal class Airport : FlightAppObject, IReportable
 {
     public Airport(ulong id, string name, string code, float longitude, float latitude, float aMSL, string country) 
         : base("AI", id)
@@ -157,6 +162,10 @@ internal class Airport : FlightAppObject
     public float AMSL { get; }
 
     public string Country { get; }
+
+    public string? Serial => null;
+
+    public string? Model => null;
 }
 
 internal class Flight : FlightAppObject

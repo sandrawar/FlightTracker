@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Globalization;
 
-namespace FlightApp;
+namespace FlightApp.Readers;
 
-internal interface IFlightAppObjectFtrReader: IFlightAppObjectReader<string[]>
+internal interface IFlightAppObjectFtrReader : IFlightAppObjectReader<string[]>
 {
 }
 
@@ -12,7 +12,7 @@ internal class FlightAppFtrReader : IFlightAppObjectFtrReader
     private readonly IDictionary<string, IFlightAppObjectFtrReader> factories;
     public FlightAppFtrReader()
     {
-         factories = new Dictionary<string, IFlightAppObjectFtrReader>()
+        factories = new Dictionary<string, IFlightAppObjectFtrReader>()
          {
              {"C", new CrewFtrReader() },
              {"P", new PassangerFtrReader() },
@@ -21,7 +21,7 @@ internal class FlightAppFtrReader : IFlightAppObjectFtrReader
              {"CP", new CargoPlaneFtrReader() },
              {"AI", new AirportFtrReader() },
              {"FL", new FlightFtrReader() }
-         };   
+         };
     }
 
     public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
@@ -75,12 +75,12 @@ internal class PassangerFtrReader : IFlightAppObjectFtrReader
         }
 
         flightAppCompleteData.Add(new Passanger(
-            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
-            data[2], 
-            ulong.Parse(data[3], CultureInfo.InvariantCulture), 
-            data[4], 
-            data[5], 
-            data[6], 
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            data[2],
+            ulong.Parse(data[3], CultureInfo.InvariantCulture),
+            data[4],
+            data[5],
+            data[6],
             ulong.Parse(data[7], CultureInfo.InvariantCulture)));
     }
 }
@@ -95,9 +95,9 @@ internal class CargoFtrReader : IFlightAppObjectFtrReader
         }
 
         flightAppCompleteData.Add(new Cargo(
-            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
-            float.Parse(data[2], CultureInfo.InvariantCulture), 
-            data[3], 
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            float.Parse(data[2], CultureInfo.InvariantCulture),
+            data[3],
             data[4]));
     }
 }
@@ -112,10 +112,10 @@ internal class CargoPlaneFtrReader : IFlightAppObjectFtrReader
         }
 
         flightAppCompleteData.Add(new CargoPlane(
-            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
-            data[2], 
-            data[3], 
-            data[4], 
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            data[2],
+            data[3],
+            data[4],
             float.Parse(data[5], CultureInfo.InvariantCulture)));
     }
 }
@@ -130,12 +130,12 @@ internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
         }
 
         flightAppCompleteData.Add(new PassangerPlane(
-            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
-            data[2], 
-            data[3], 
-            data[4], 
-            ushort.Parse(data[5], CultureInfo.InvariantCulture), 
-            ushort.Parse(data[6], CultureInfo.InvariantCulture), 
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            data[2],
+            data[3],
+            data[4],
+            ushort.Parse(data[5], CultureInfo.InvariantCulture),
+            ushort.Parse(data[6], CultureInfo.InvariantCulture),
             ushort.Parse(data[7], CultureInfo.InvariantCulture)));
     }
 }
@@ -150,12 +150,12 @@ internal class AirportFtrReader : IFlightAppObjectFtrReader
         }
 
         flightAppCompleteData.Add(new Airport(
-            ulong.Parse(data[1], CultureInfo.InvariantCulture), 
-            data[2], 
-            data[3], 
-            float.Parse(data[4], CultureInfo.InvariantCulture), 
-            float.Parse(data[5], CultureInfo.InvariantCulture), 
-            float.Parse(data[6], CultureInfo.InvariantCulture), 
+            ulong.Parse(data[1], CultureInfo.InvariantCulture),
+            data[2],
+            data[3],
+            float.Parse(data[4], CultureInfo.InvariantCulture),
+            float.Parse(data[5], CultureInfo.InvariantCulture),
+            float.Parse(data[6], CultureInfo.InvariantCulture),
             data[7]));
     }
 }

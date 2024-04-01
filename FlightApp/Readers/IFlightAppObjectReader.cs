@@ -1,4 +1,4 @@
-﻿namespace FlightApp;
+﻿namespace FlightApp.Readers;
 
 internal interface IFlightAppObjectReader<TRawData>
 {

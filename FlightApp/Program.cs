@@ -1,13 +1,19 @@
 ﻿
 using FlightApp;
+using FlightApp.DataProcessor;
 
 internal class Program
 {
+    private static bool useSimulator = false;
     private static void Main(string[] args)
     {
         PrintManual();
 
-        var logic = new FlightAppLogic(args[0]);
+        IFlightAppDataProcessor dataProcessor = useSimulator
+            ? new NetworkSimulatorDataProcessor(args[0])
+            : new FtrDataProcessor(args[0]);
+
+        var logic = new FlightAppLogic(dataProcessor);
 
         try
         {
@@ -27,6 +33,12 @@ internal class Program
                         logic.MakeSnapshot();
                         Console.WriteLine("Snapshot created");
                         break;
+                    case "report":
+                        foreach (var info in logic.Report())
+                        {
+                            Console.WriteLine(info);
+                        }
+                        break;
                     default:
                         Console.WriteLine("Unrecognized command");
                         PrintManual();
@@ -45,6 +57,7 @@ internal class Program
             Console.WriteLine("Flight App commands:");
             Console.WriteLine("  exit - close application");
             Console.WriteLine("  print - create data snapshot");
+            Console.WriteLine("  report - create news report");
         }
     }
 

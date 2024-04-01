@@ -1,31 +1,26 @@
 ﻿using FlightApp;
+using FlightApp.DataProcessor;
+using FlightApp.News;
 using FlightTrackerGUI;
 using Mapsui.Projections;
-using NetworkSourceSimulator;
 
-public class FlightAppLogic: IDisposable
+internal class FlightAppLogic: IDisposable
 {
 	private readonly IFlightAppCompleteData flightAppCompleteData;
-	private readonly IDataSource simulator;
-	private readonly IFlightAppBinaryMessageReader messageReader;
+	private readonly IFlightAppDataProcessor flightAppDataProcessor;
 	private readonly Timer timer;
-	private bool disposedValue;
-	private WorldPosition worldPosition;
+    private bool disposedValue;
 
-	public FlightAppLogic(string dataFilePath)
+	public FlightAppLogic(IFlightAppDataProcessor flightAppDataProcessor)
 	{
-		flightAppCompleteData = new FlightAppCompleteData();
-		messageReader = new FlightAppBinaryMessageReader();
-		simulator = new NetworkSourceSimulator.NetworkSourceSimulator(dataFilePath, 1, 5);
-		simulator.OnNewDataReady += Simulator_OnNewDataReady;
-		timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
-	}
+		this.flightAppCompleteData = new FlightAppCompleteData();
+		this.flightAppDataProcessor = flightAppDataProcessor;
+		this.timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
+    }
 
 	public void StartNetworkSimulator()
 	{
-		Thread simulateThread = new Thread(() => simulator.Run());
-		simulateThread.IsBackground = true;
-		simulateThread.Start();
+		flightAppDataProcessor.Start(flightAppCompleteData);
 		Thread mapThread = new Thread(() => Runner.Run());
 		mapThread.IsBackground = true;
 		mapThread.Start();
@@ -40,13 +35,40 @@ public class FlightAppLogic: IDisposable
 		serializer.Serialize(data, snapshotFileName);
 	}
 
-	private void MapRefresh(object? state)
+	public IEnumerable<string> Report()
+	{
+		var generator = new NewsGenerator(
+			new INewsReporter[] {
+				new Televison("Telewizja Abelowa"),
+                new Televison("Kanał TV-tensor"),
+				new Radio("Radio Kwantyfikator"),
+                new Radio("Radio Shmem"),
+                new Newspaper("Gazeta Kategoryczna"),
+                new Newspaper("Dziennik Politechniczny"),
+            },
+			[
+			.. flightAppCompleteData.GetAirports().Values,
+			.. flightAppCompleteData.GetCargoPlanes(),
+			.. flightAppCompleteData.GetPassangerPlanes()
+			]);
+
+		string? info;
+		do
+		{
+			info = generator.GenerateNextNews();
+			if (info != null)
+			{
+                yield return info;
+			}
+		}
+		while (info != null);
+	}
+
+    private void MapRefresh(object? state)
 	{
 		var sourceFlights = flightAppCompleteData.GetFlights();
 		var sourceAirports = flightAppCompleteData.GetAirports();
 		List<FlightGUI> flights = new List<FlightGUI>();
-		worldPosition.Latitude += 1;
-		worldPosition.Longitude += 1;
 
 		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)).Where(fi => fi.isLive))
 		{
@@ -99,7 +121,6 @@ public class FlightAppLogic: IDisposable
 		return num;
 	}
 
-
 	private WorldPosition CalculateFlightPosition(Flight flight, Airport originAirport, Airport targetAirport, TimeSpan timeOfDay)
 	{
 		if (flight.Longitude.HasValue && flight.Latitude.HasValue)
@@ -127,12 +148,6 @@ public class FlightAppLogic: IDisposable
 		return new WorldPosition(x, y);
 	}
 
-	private void Simulator_OnNewDataReady(object sender, NewDataReadyArgs args)
-	{
-		var message = simulator.GetMessageAt(args.MessageIndex);
-		messageReader.AddToFlightAppCompleteData(message.MessageBytes, flightAppCompleteData);
-	}
-
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!disposedValue)
@@ -150,4 +165,5 @@ public class FlightAppLogic: IDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
+
 }
