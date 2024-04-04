@@ -36,19 +36,20 @@ internal class FlightAppLogic: IDisposable
 	public IEnumerable<string> Report()
 	{
 		var generator = new NewsGenerator(
-			new INewsReporter[] {
+			[
 				new Televison("Telewizja Abelowa"),
 				new Televison("Kanał TV-tensor"),
 				new Radio("Radio Kwantyfikator"),
 				new Radio("Radio Shmem"),
 				new Newspaper("Gazeta Kategoryczna"),
 				new Newspaper("Dziennik Politechniczny"),
-			},
+			],
 			[
 			.. dataProcessor.FlightAppCompleteData.GetAirports().Values,
 			.. dataProcessor.FlightAppCompleteData.GetCargoPlanes(),
 			.. dataProcessor.FlightAppCompleteData.GetPassangerPlanes()
 			]);
+
 
 		string? info;
 		do
@@ -160,7 +161,7 @@ internal class FlightAppLogic: IDisposable
 
 	public void Dispose()
 	{
-		Dispose(disposing: true);
+		Dispose(true);
 		GC.SuppressFinalize(this);
 	}
 

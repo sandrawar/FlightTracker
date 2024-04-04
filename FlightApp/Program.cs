@@ -6,7 +6,6 @@ internal class Program
     private static bool useSimulator = false;
     private static void Main(string[] args)
     {
-        PrintManual();
 
         IFlightAppDataProcessor dataProcessor = useSimulator
             ? new NetworkSimulatorDataProcessor(args[0], new FlightAppBinaryMessageReader(), new FlightAppCompleteData())
@@ -22,6 +21,7 @@ internal class Program
             bool endApplication = false;
             while (!endApplication)
             {
+                PrintManual();
                 var command = Console.ReadLine();
                 switch (command)
                 {
@@ -40,11 +40,9 @@ internal class Program
                         break;
                     default:
                         Console.WriteLine("Unrecognized command");
-                        PrintManual();
                         break;
                 }
             }
-
         }
         finally
         {
@@ -53,6 +51,7 @@ internal class Program
 
         void PrintManual()
         {
+            Console.WriteLine(string.Empty);
             Console.WriteLine("Flight App commands:");
             Console.WriteLine("  exit - close application");
             Console.WriteLine("  print - create data snapshot");
