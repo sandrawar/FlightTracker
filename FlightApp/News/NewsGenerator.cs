@@ -2,20 +2,22 @@
 {
     internal class NewsGenerator
     {
-        private readonly IEnumerator<(INewsReporter news, IReportable reportable)> enumerator;
+        private readonly IEnumerator<string> enumerator;
 
         public NewsGenerator(
             IEnumerable<INewsReporter> newsReporters,
             IEnumerable<IReportable> reportables)
         {
-            var newsReportables = newsReporters.SelectMany(
-                n => reportables.Select(r => (n, r)).ToArray());
-            enumerator = newsReportables.GetEnumerator();
+            enumerator = newsReporters
+                .SelectMany(news => reportables.Select(
+                    reportable => (news, reportable)))
+                .Select(v => v.news.Report(v.reportable))
+                .GetEnumerator();
         }
 
         public string? GenerateNextNews() =>
             enumerator.MoveNext()
-                ? enumerator.Current.news.Report(enumerator.Current.reportable)
+                ? enumerator.Current
                 : null;
     }
 }
