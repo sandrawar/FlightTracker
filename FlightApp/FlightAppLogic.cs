@@ -45,9 +45,9 @@ internal class FlightAppLogic: IDisposable
 				new Newspaper("Dziennik Politechniczny"),
 			],
 			[
-			.. dataProcessor.FlightAppCompleteData.GetAirports().Values,
-			.. dataProcessor.FlightAppCompleteData.GetCargoPlanes(),
-			.. dataProcessor.FlightAppCompleteData.GetPassangerPlanes()
+			.. dataProcessor.FlightAppCompleteData.GetAirports().Values.Select(a => new AirportReportableDecorator(a)),
+			.. dataProcessor.FlightAppCompleteData.GetCargoPlanes().Select(cp => new CargoPlaneReportableDecorator(cp)),
+			.. dataProcessor.FlightAppCompleteData.GetPassangerPlanes().Select(pp => new PassangerPlaneReportableDecorator(pp)),
 			]);
 
 

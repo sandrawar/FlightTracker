@@ -8,10 +8,6 @@ namespace FlightApp.News
 {
     internal interface IReportable
     {
-        string ClassType { get; }
-        string? Name { get; }
-        string? Country { get; }
-        string? Serial{ get; }
-        string? Model { get; }
+        string Report(INewsReporter newsReporter);
     }
 }

@@ -11,7 +11,7 @@
             enumerator = newsReporters
                 .SelectMany(news => reportables.Select(
                     reportable => (news, reportable)))
-                .Select(v => v.news.Report(v.reportable))
+                .Select(v => v.reportable.Report(v.news))
                 .GetEnumerator();
         }
 
