@@ -2,7 +2,7 @@
 
 namespace FlightApp.DataProcessor
 {
-    internal interface IFlightAppCompleteData
+    internal interface IFlightAppDataUpdate
     {
         void Add(Airport airport);
         void Add(Cargo cargo);
@@ -11,7 +11,10 @@ namespace FlightApp.DataProcessor
         void Add(Flight flight);
         void Add(Passanger passanger);
         void Add(PassangerPlane passangerPlane);
+    }
 
+    internal interface IFlightAppDataRead
+    {
         IReadOnlyCollection<FlightAppObject> GetCompleteData();
 
         IReadOnlyDictionary<ulong, Airport> GetAirports();
@@ -21,6 +24,10 @@ namespace FlightApp.DataProcessor
         IReadOnlyCollection<Flight> GetFlights();
         IReadOnlyCollection<PassangerPlane> GetPassangerPlanes();
         IReadOnlyCollection<Passanger> GetPassangers();
+    }
+
+    internal interface IFlightAppCompleteData: IFlightAppDataUpdate, IFlightAppDataRead
+    {
     }
 
     internal class FlightAppCompleteData : IFlightAppCompleteData

@@ -4,5 +4,5 @@ namespace FlightApp.Readers;
 
 internal interface IFlightAppObjectReader<TRawData>
 {
-    void AddToFlightAppCompleteData(TRawData data, IFlightAppCompleteData flightAppCompleteData);
+    void AddToFlightAppDataUpdate(TRawData data, IFlightAppDataUpdate flightAppCompleteData);
 }

@@ -28,7 +28,7 @@ namespace FlightApp.DataProcessor
         private void Simulator_OnNewDataReady(object sender, NewDataReadyArgs args)
         {
             var message = simulator.GetMessageAt(args.MessageIndex);
-            messageReader.AddToFlightAppCompleteData(message.MessageBytes, FlightAppCompleteData);
+            messageReader.AddToFlightAppDataUpdate(message.MessageBytes, FlightAppCompleteData);
         }
 
     }

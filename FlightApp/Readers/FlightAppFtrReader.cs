@@ -25,7 +25,7 @@ internal class FlightAppFtrReader : IFlightAppObjectFtrReader
          };
     }
 
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data == null)
         {
@@ -42,20 +42,20 @@ internal class FlightAppFtrReader : IFlightAppObjectFtrReader
             throw new ArgumentOutOfRangeException(nameof(data));
         }
 
-        factory.AddToFlightAppCompleteData(data, flightAppCompleteData);
+        factory.AddToFlightAppDataUpdate(data, flightAppDataUpdate);
     }
 }
 
 internal class CrewFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 8)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new Crew(
+        flightAppDataUpdate.Add(new Crew(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             ulong.Parse(data[3], CultureInfo.InvariantCulture),
@@ -68,14 +68,14 @@ internal class CrewFtrReader : IFlightAppObjectFtrReader
 
 internal class PassangerFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 8)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new Passanger(
+        flightAppDataUpdate.Add(new Passanger(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             ulong.Parse(data[3], CultureInfo.InvariantCulture),
@@ -88,14 +88,14 @@ internal class PassangerFtrReader : IFlightAppObjectFtrReader
 
 internal class CargoFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 5)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new Cargo(
+        flightAppDataUpdate.Add(new Cargo(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             float.Parse(data[2], CultureInfo.InvariantCulture),
             data[3],
@@ -105,14 +105,14 @@ internal class CargoFtrReader : IFlightAppObjectFtrReader
 
 internal class CargoPlaneFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 6)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new CargoPlane(
+        flightAppDataUpdate.Add(new CargoPlane(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             data[3],
@@ -123,14 +123,14 @@ internal class CargoPlaneFtrReader : IFlightAppObjectFtrReader
 
 internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 8)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new PassangerPlane(
+        flightAppDataUpdate.Add(new PassangerPlane(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             data[3],
@@ -143,14 +143,14 @@ internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
 
 internal class AirportFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 8)
         {
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppCompleteData.Add(new Airport(
+        flightAppDataUpdate.Add(new Airport(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             data[3],
@@ -163,7 +163,7 @@ internal class AirportFtrReader : IFlightAppObjectFtrReader
 
 internal class FlightFtrReader : IFlightAppObjectFtrReader
 {
-    public void AddToFlightAppCompleteData(string[] data, IFlightAppCompleteData flightAppCompleteData)
+    public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
         if (data.Length != 12)
         {
@@ -186,7 +186,7 @@ internal class FlightFtrReader : IFlightAppObjectFtrReader
             .Select(s => ulong.Parse(s, CultureInfo.InvariantCulture))
             .ToArray();
 
-        flightAppCompleteData.Add(new Flight(
+        flightAppDataUpdate.Add(new Flight(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             ulong.Parse(data[2], CultureInfo.InvariantCulture),
             ulong.Parse(data[3], CultureInfo.InvariantCulture),

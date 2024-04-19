@@ -6,17 +6,17 @@ internal class Program
     private static bool useSimulator = false;
     private static void Main(string[] args)
     {
-
+        IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData();
         IFlightAppDataProcessor dataProcessor = useSimulator
-            ? new NetworkSimulatorDataProcessor(args[0], new FlightAppBinaryMessageReader(), new FlightAppCompleteData())
-            : new FtrDataProcessor(args[0], new FlightAppFtrReader(), new FlightAppCompleteData());
+            ? new NetworkSimulatorDataProcessor(args[0], new FlightAppBinaryMessageReader(), flightAppCompleteData)
+            : new FtrDataProcessor(args[0], new FlightAppFtrReader(), flightAppCompleteData);
 
-        var logic = new FlightAppLogic(dataProcessor);
+        var logic = new FlightAppLogic(flightAppCompleteData);
 
         try
         {
-
-            logic.StartNetworkSimulator();
+            dataProcessor.Start();
+            logic.Start();
 
             bool endApplication = false;
             while (!endApplication)

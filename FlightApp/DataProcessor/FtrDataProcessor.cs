@@ -40,7 +40,7 @@ internal class FtrDataProcessor : IFlightAppDataProcessor
                 var line = reader.ReadLine();
                 if (!string.IsNullOrEmpty(line))
                 {
-                    this.reader.AddToFlightAppCompleteData(line.Split(","), FlightAppCompleteData);
+                    this.reader.AddToFlightAppDataUpdate(line.Split(","), FlightAppCompleteData);
                 }
             }
         }
