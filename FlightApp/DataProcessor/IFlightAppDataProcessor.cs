@@ -2,8 +2,6 @@
 {
     internal interface IFlightAppDataProcessor
     {
-        IFlightAppCompleteData FlightAppCompleteData { get; }
-
         void Start();
     }
 }

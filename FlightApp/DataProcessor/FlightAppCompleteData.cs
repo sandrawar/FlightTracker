@@ -11,6 +11,11 @@ namespace FlightApp.DataProcessor
         void Add(Flight flight);
         void Add(Passanger passanger);
         void Add(PassangerPlane passangerPlane);
+
+        void UpdateData(IDUpdateData iDUpdateData);
+        void UpdateData(PositionUpdateData positionUpdateData);
+        void UpdateData(ContactInfoUpdateData contactInfoUpdateData);
+
     }
 
     internal interface IFlightAppDataRead
@@ -80,5 +85,17 @@ namespace FlightApp.DataProcessor
         public void Add(PassangerPlane passangerPlane) => passangerPlanes.Add(passangerPlane);
         public void Add(Cargo cargo) => cargos.Add(cargo);
         public void Add(CargoPlane cargoPlane) => cargoPlanes.Add(cargoPlane);
+
+        public void UpdateData(IDUpdateData iDUpdateData)
+        {
+        }
+
+        public void UpdateData(PositionUpdateData positionUpdateData)
+        {
+        }
+
+        public void UpdateData(ContactInfoUpdateData contactInfoUpdateData)
+        {
+        }
     }
 }

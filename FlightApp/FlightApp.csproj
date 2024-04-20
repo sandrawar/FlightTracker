@@ -18,6 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="example.ftre">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="example_data.ftr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -3,13 +3,10 @@ using FlightApp.Readers;
 
 internal class Program
 {
-    private static bool useSimulator = false;
     private static void Main(string[] args)
     {
         IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData();
-        IFlightAppDataProcessor dataProcessor = useSimulator
-            ? new NetworkSimulatorDataProcessor(args[0], new FlightAppBinaryMessageReader(), flightAppCompleteData)
-            : new FtrDataProcessor(args[0], new FlightAppFtrReader(), flightAppCompleteData);
+        IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
 
         var logic = new FlightAppLogic(flightAppCompleteData);
 

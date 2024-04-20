@@ -5,16 +5,16 @@ namespace FlightApp.DataProcessor;
 internal class FtrDataProcessor : IFlightAppDataProcessor
 {
     private readonly IFlightAppObjectFtrReader reader;
+    private readonly IFlightAppDataUpdate flightAppData;
     private readonly string dataPath;
 
-    public FtrDataProcessor(string dataFilePath, IFlightAppObjectFtrReader flightAppObjectFtrReader, IFlightAppCompleteData flightAppCompleteData)
+    public FtrDataProcessor(string dataFilePath, IFlightAppObjectFtrReader flightAppObjectFtrReader, IFlightAppDataUpdate flightAppDataUpdate)
     {
         dataPath = dataFilePath;
-        FlightAppCompleteData = flightAppCompleteData;
+        flightAppData = flightAppDataUpdate;
         reader = flightAppObjectFtrReader;
     }
 
-    public IFlightAppCompleteData FlightAppCompleteData { get; }
 
     public void Start()
     {
@@ -40,7 +40,7 @@ internal class FtrDataProcessor : IFlightAppDataProcessor
                 var line = reader.ReadLine();
                 if (!string.IsNullOrEmpty(line))
                 {
-                    this.reader.AddToFlightAppDataUpdate(line.Split(","), FlightAppCompleteData);
+                    this.reader.AddToFlightAppDataUpdate(line.Split(","), flightAppData);
                 }
             }
         }
