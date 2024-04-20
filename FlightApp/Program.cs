@@ -5,7 +5,8 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData(new Logger());
+        var logger = new Logger();
+        IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData(logger);
         IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
 
         var logic = new FlightAppLogic(flightAppCompleteData);
@@ -44,6 +45,7 @@ internal class Program
         finally
         {
             logic.Dispose();
+            logger.Dispose();
         }
 
         void PrintManual()
