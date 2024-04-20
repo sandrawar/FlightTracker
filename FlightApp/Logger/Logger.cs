@@ -1,6 +1,4 @@
-﻿using RTools_NTS.Util;
-using System.Collections.Concurrent;
-using System.Threading;
+﻿using System.Collections.Concurrent;
 
 namespace FlightApp.Logger
 {
@@ -12,8 +10,8 @@ namespace FlightApp.Logger
     {
         private readonly Guid runId = Guid.NewGuid();
         private readonly ConcurrentQueue<string> logData = new();
+        private readonly CancellationTokenSource cancellationTokenSource;
         private bool disposedValue;
-        private CancellationTokenSource cancellationTokenSource;
 
         public Logger()
         {
@@ -53,6 +51,7 @@ namespace FlightApp.Logger
                 if (disposing)
                 {
                     cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Dispose();
                 }
 
                 disposedValue = true;
