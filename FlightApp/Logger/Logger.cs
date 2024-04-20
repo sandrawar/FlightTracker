@@ -8,6 +8,7 @@
     {
         public void LogData(string data)
         {
+            Console.WriteLine($"logger: {data}");
         }
     }
 }

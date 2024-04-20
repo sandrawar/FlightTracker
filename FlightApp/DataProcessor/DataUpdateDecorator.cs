@@ -1,19 +1,28 @@
 ﻿
+using FlightApp.Logger;
+using NetworkSourceSimulator;
+
 namespace FlightApp.DataProcessor
 {
-    internal interface IFlightAppObjectUpdateDecorator: IFlightAppObject
+    internal interface IFlightAppObjectUpdateDecorator : IFlightAppObject
     {
+        void UpdateData(IDUpdateData updateData, ILogger logger);
     }
 
     internal interface ICargoUpdateDecorator : IFlightAppObjectUpdateDecorator, ICargo
     {
     }
 
-    internal interface ICrewUpdateDecorator : IFlightAppObjectUpdateDecorator, ICrew
+    internal interface IPersonUpdateDecorator : IFlightAppObjectUpdateDecorator, IPerson
+    {
+        void UpdateData(ContactInfoUpdateData updateData, ILogger logger);
+    }
+
+    internal interface ICrewUpdateDecorator : IPersonUpdateDecorator, ICrew
     {
     }
 
-    internal interface IPassangerUpdateDecorator : IFlightAppObjectUpdateDecorator, IPassanger
+    internal interface IPassangerUpdateDecorator : IPersonUpdateDecorator, IPassanger
     {
     }
 
@@ -33,22 +42,31 @@ namespace FlightApp.DataProcessor
     {
     }
 
-    internal abstract class FlightAppObjectUpdateDecorator<TDecoratedType>: IFlightAppObjectUpdateDecorator
-        where TDecoratedType: IFlightAppObject
+    internal abstract class FlightAppObjectUpdateDecorator<TDecoratedType> : IFlightAppObjectUpdateDecorator
+        where TDecoratedType : IFlightAppObject
     {
-        private ulong? actualId;
+        private ulong? idUpdated;
 
         protected FlightAppObjectUpdateDecorator(TDecoratedType decoratedObject)
         {
             Decorated = decoratedObject;
-            actualId = null;
         }
 
         protected TDecoratedType Decorated { get; init; }
 
         public string ClassType => Decorated.ClassType;
 
-        public ulong Id {get => actualId ?? Decorated.Id; }
+        public ulong Id { get => idUpdated ?? Decorated.Id; }
+
+        public virtual void UpdateData(IDUpdateData updateData, ILogger logger)
+        {
+            if (updateData.ObjectID == Id)
+            {
+                logger.LogData($"Updating id: {Id} => {updateData.NewObjectID}");
+
+                idUpdated = updateData.NewObjectID;
+            }
+        }
     }
 
     internal sealed class CargoUpdateDecorator : FlightAppObjectUpdateDecorator<ICargo>, ICargoUpdateDecorator
@@ -64,20 +82,36 @@ namespace FlightApp.DataProcessor
         public float Weight => Decorated.Weight;
     }
 
-    internal abstract class PersonUpdateDecorator<TDecoratedType> : FlightAppObjectUpdateDecorator<TDecoratedType>, IPerson
-        where TDecoratedType: IPerson
+    internal abstract class PersonUpdateDecorator<TDecoratedType> : FlightAppObjectUpdateDecorator<TDecoratedType>, IPersonUpdateDecorator
+        where TDecoratedType : IPerson
     {
+        private string? emailUpdated;
+        private string? phoneUpdated;
         public PersonUpdateDecorator(TDecoratedType person) : base(person)
         {
         }
 
+        public void UpdateData(ContactInfoUpdateData updateData, ILogger logger)
+        {
+            if (updateData.ObjectID == Id)
+            {
+                logger.LogData($"Updating contact info: id={Id} " +
+                    $"| email {Email} => {updateData.EmailAddress} " +
+                    $"| phone {Phone} => {updateData.PhoneNumber}");
+
+                emailUpdated = updateData.EmailAddress;
+                phoneUpdated = updateData.PhoneNumber;
+
+            }
+        }
+
         public ulong Age => Decorated.Age;
 
-        public string Email => Decorated.Email;
+        public string Email => emailUpdated ?? Decorated.Email;
 
         public string Name => Decorated.Name;
 
-        public string Phone => Decorated.Phone;
+        public string Phone => phoneUpdated ?? Decorated.Phone;
     }
 
     internal sealed class CrewUpdateDecorator : PersonUpdateDecorator<ICrew>, ICrewUpdateDecorator
@@ -159,29 +193,67 @@ namespace FlightApp.DataProcessor
 
     internal sealed class FlightUpdateDecorator : FlightAppObjectUpdateDecorator<IFlight>, IFlightUpdateDecorator
     {
+        private ulong? updatedOriginAsID;
+        private ulong? updatedTargetAsID;
+        private ulong? updatedPlaneID;
+        private ulong[]? updatedCrewAsIDs;
+        private ulong[]? updatedLoadAsIDs;
+
         public FlightUpdateDecorator(IFlight flight) : base(flight)
         {
         }
 
         public float? AMSL => Decorated.AMSL;
 
-        public ulong[] CrewAsIDs => Decorated.CrewAsIDs;
+        public ulong[] CrewAsIDs => updatedCrewAsIDs ?? Decorated.CrewAsIDs;
 
         public DateTime LandingTime => Decorated.LandingTime;
 
         public float? Latitude => Decorated.Latitude;
 
-        public ulong[] LoadAsIDs => Decorated.LoadAsIDs;
+        public ulong[] LoadAsIDs => updatedLoadAsIDs ?? Decorated.LoadAsIDs;
 
         public float? Longitude => Decorated.Longitude;
 
-        public ulong OriginAsID => Decorated.OriginAsID;
+        public ulong OriginAsID => updatedOriginAsID ?? Decorated.OriginAsID;
 
-        public ulong PlaneID => Decorated.PlaneID;
+        public ulong PlaneID => updatedPlaneID ?? Decorated.PlaneID;
 
         public DateTime TakeoffTime => Decorated.TakeoffTime;
 
-        public ulong TargetAsID => Decorated.TargetAsID;
+        public ulong TargetAsID => updatedTargetAsID ?? Decorated.TargetAsID;
+
+        public override void UpdateData(IDUpdateData updateData, ILogger logger)
+        {
+            base.UpdateData(updateData, logger);
+
+            if (updateData.ObjectID == OriginAsID)
+            {
+                logger.LogData($"Updating flight {Id} {nameof(OriginAsID)}: {OriginAsID} => {updateData.NewObjectID}");
+                updatedOriginAsID = updateData.NewObjectID;
+            }
+            if (updateData.ObjectID == TargetAsID)
+            {
+                logger.LogData($"Updating flight {Id} {nameof(TargetAsID)}: {TargetAsID} => {updateData.NewObjectID}");
+                updatedTargetAsID = updateData.NewObjectID;
+            }
+            if (updateData.ObjectID == PlaneID)
+            {
+                logger.LogData($"Updating flight {Id} {nameof(PlaneID)}: {PlaneID} => {updateData.NewObjectID}");
+                updatedPlaneID = updateData.NewObjectID;
+            }
+            if (CrewAsIDs.Contains(updateData.ObjectID))
+            {
+                logger.LogData($"Updating flight {Id} {nameof(CrewAsIDs)}: {updateData.ObjectID} => {updateData.NewObjectID}");
+                updatedCrewAsIDs = CrewAsIDs.Where(id => id != updateData.ObjectID).Concat([updateData.NewObjectID]).ToArray();
+            }
+            if (LoadAsIDs.Contains(updateData.ObjectID))
+            {
+                logger.LogData($"Updating flight {Id} {nameof(LoadAsIDs)}: {updateData.ObjectID} => {updateData.NewObjectID}");
+                updatedLoadAsIDs = LoadAsIDs.Where(id => id != updateData.ObjectID).Concat([updateData.NewObjectID]).ToArray();
+            }
+        }
+
     }
 
 }

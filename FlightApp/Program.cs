@@ -1,11 +1,11 @@
 ﻿using FlightApp.DataProcessor;
-using FlightApp.Readers;
+using FlightApp.Logger;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData();
+        IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData(new Logger());
         IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
 
         var logic = new FlightAppLogic(flightAppCompleteData);
