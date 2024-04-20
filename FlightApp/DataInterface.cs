@@ -84,5 +84,7 @@ namespace FlightApp
         ulong PlaneID { get; }
         DateTime TakeoffTime { get; }
         ulong TargetAsID { get; }
+
+        DateTime? LastPositionTime { get; }
     }
 }

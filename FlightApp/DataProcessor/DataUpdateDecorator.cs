@@ -40,6 +40,7 @@ namespace FlightApp.DataProcessor
 
     internal interface IFlightUpdateDecorator : IFlightAppObjectUpdateDecorator, IFlight
     {
+        void UpdateData(PositionUpdateData updateData, ILogger logger);
     }
 
     internal abstract class FlightAppObjectUpdateDecorator<TDecoratedType> : IFlightAppObjectUpdateDecorator
@@ -198,22 +199,25 @@ namespace FlightApp.DataProcessor
         private ulong? updatedPlaneID;
         private ulong[]? updatedCrewAsIDs;
         private ulong[]? updatedLoadAsIDs;
+        private float? updatedLatitude;
+        private float? updatedLongitude;
+        private float? updatedAMSL;
 
         public FlightUpdateDecorator(IFlight flight) : base(flight)
         {
         }
 
-        public float? AMSL => Decorated.AMSL;
+        public float? AMSL => updatedAMSL ?? Decorated.AMSL;
 
         public ulong[] CrewAsIDs => updatedCrewAsIDs ?? Decorated.CrewAsIDs;
 
         public DateTime LandingTime => Decorated.LandingTime;
 
-        public float? Latitude => Decorated.Latitude;
+        public float? Latitude => updatedLatitude ?? Decorated.Latitude;
 
         public ulong[] LoadAsIDs => updatedLoadAsIDs ?? Decorated.LoadAsIDs;
 
-        public float? Longitude => Decorated.Longitude;
+        public float? Longitude => updatedLongitude ?? Decorated.Longitude;
 
         public ulong OriginAsID => updatedOriginAsID ?? Decorated.OriginAsID;
 
@@ -222,6 +226,8 @@ namespace FlightApp.DataProcessor
         public DateTime TakeoffTime => Decorated.TakeoffTime;
 
         public ulong TargetAsID => updatedTargetAsID ?? Decorated.TargetAsID;
+
+        public DateTime? LastPositionTime { get; private set; }
 
         public override void UpdateData(IDUpdateData updateData, ILogger logger)
         {
@@ -254,6 +260,20 @@ namespace FlightApp.DataProcessor
             }
         }
 
+        public void UpdateData(PositionUpdateData updateData, ILogger logger)
+        {
+            if (updateData.ObjectID == Id)
+            {
+                logger.LogData($"Updating flight position info: id={Id} " +
+                    $"| amsl {AMSL} => {updateData.AMSL} " +
+                    $"| latitude {Latitude} => {updateData.Latitude}" +
+                    $"| longitude {Longitude} => {updateData.Longitude}");
+
+                updatedAMSL = updateData.AMSL;
+                updatedLatitude = updateData.Latitude;
+                updatedLongitude = updateData.Longitude;
+            }
+        }
     }
 
 }

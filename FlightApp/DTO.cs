@@ -199,4 +199,6 @@ internal class Flight : FlightAppObject, IFlight
     public ulong[] CrewAsIDs { get; }
 
     public ulong[] LoadAsIDs { get; }
+
+    public DateTime? LastPositionTime => null;
 }

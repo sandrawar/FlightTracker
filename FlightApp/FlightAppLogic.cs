@@ -7,13 +7,13 @@ using Mapsui.Projections;
 
 internal class FlightAppLogic: IDisposable
 {
-    private readonly IFlightAppDataRead appData;
+	private readonly IFlightAppDataRead appData;
 	private readonly Timer timer;
 	private bool disposedValue;
 
 	public FlightAppLogic(IFlightAppDataRead flightAppData)
 	{
-        appData = flightAppData;
+		appData = flightAppData;
 		timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
 	}
 
@@ -69,7 +69,7 @@ internal class FlightAppLogic: IDisposable
 		var sourceAirports = appData.GetAirports().ToDictionary(c => c.Id, c => c);
 		List<FlightGUI> flights = new List<FlightGUI>();
 
-		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)).Where(fi => fi.isLive))
+		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)))
 		{
 			flights.Add(new FlightGUI()
 			{
@@ -82,18 +82,19 @@ internal class FlightAppLogic: IDisposable
 		Runner.UpdateGUI(flightsGUIData);
 	}
 
-	private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
+    private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
 	{
 		var displayTime = DateTime.Now.TimeOfDay;
 		var isLive = false;
 
-		if (flight.TakeoffTime.TimeOfDay < flight.LandingTime.TimeOfDay)
+		var lastKnownPositionTime = flight.LastPositionTime ?? flight.TakeoffTime;
+		if (lastKnownPositionTime.TimeOfDay < flight.LandingTime.TimeOfDay)
 		{
-			isLive = flight.TakeoffTime.TimeOfDay < displayTime && displayTime < flight.LandingTime.TimeOfDay;
+			isLive = lastKnownPositionTime.TimeOfDay < displayTime && displayTime < flight.LandingTime.TimeOfDay;
 		}
-		else if (flight.TakeoffTime.TimeOfDay > flight.LandingTime.TimeOfDay)
+		else if (lastKnownPositionTime.TimeOfDay > flight.LandingTime.TimeOfDay)
 		{
-			isLive = flight.TakeoffTime.TimeOfDay < displayTime || displayTime < flight.LandingTime.TimeOfDay;
+			isLive = lastKnownPositionTime.TimeOfDay < displayTime || displayTime < flight.LandingTime.TimeOfDay;
 		}
 
 		if (isLive && airports.TryGetValue(flight.OriginAsID, out var originAirport) && airports.TryGetValue(flight.TargetAsID, out var targetAirport))
@@ -104,13 +105,15 @@ internal class FlightAppLogic: IDisposable
 			return (flight, isLive, worldPosition, rotation);
 		}
 
-		return (flight, isLive, new WorldPosition(0, 0), 0);
+		return (flight, isLive, new WorldPosition(500, 500), 0);
 
 	}
 
 	private double CalculateFlightRotation(IFlight flight, IAirport originAirport, IAirport targetAirport)
 	{
-		(double x_origin, double y_origin) = SphericalMercator.FromLonLat(originAirport.Longitude, originAirport.Latitude);
+        var lastKnownLatitude = flight.Latitude ?? originAirport.Latitude;
+        var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
+        (double x_origin, double y_origin) = SphericalMercator.FromLonLat(lastKnownLongitude, lastKnownLatitude);
 		(double x_target, double y_target) = SphericalMercator.FromLonLat(targetAirport.Longitude, targetAirport.Latitude);
 		double num = Math.PI / 2 - Math.Atan2(y_target - y_origin, x_target - x_origin); 
 		if (num <= 0.0)
@@ -122,18 +125,14 @@ internal class FlightAppLogic: IDisposable
 
 	private WorldPosition CalculateFlightPosition(IFlight flight, IAirport originAirport, IAirport targetAirport, TimeSpan timeOfDay)
 	{
-		if (flight.Longitude.HasValue && flight.Latitude.HasValue)
-		{
-			return new WorldPosition(flight.Latitude.Value, flight.Longitude.Value);
-		}
-
-		var flightDuracy = flight.LandingTime.TimeOfDay - flight.TakeoffTime.TimeOfDay;
+        var lastKnownPositionTime = flight.LastPositionTime ?? flight.TakeoffTime;
+        var flightDuracy = flight.LandingTime.TimeOfDay - lastKnownPositionTime.TimeOfDay;
 		if (flightDuracy < TimeSpan.Zero)
 		{
 			flightDuracy += TimeSpan.FromDays(1);
 		}
 
-		var flightTime = timeOfDay - flight.TakeoffTime.TimeOfDay;
+		var flightTime = timeOfDay - lastKnownPositionTime.TimeOfDay;
 		if (flightTime < TimeSpan.Zero)
 		{
 			flightTime += TimeSpan.FromDays(1);
@@ -141,8 +140,11 @@ internal class FlightAppLogic: IDisposable
 
 		var flightCompletePart = flightTime / flightDuracy;
 
-		var x = originAirport.Latitude + (targetAirport.Latitude - originAirport.Latitude) * flightCompletePart;
-		var y = originAirport.Longitude + (targetAirport.Longitude - originAirport.Longitude) * flightCompletePart;
+		var lastKnownLatitude = flight.Latitude ?? originAirport.Latitude;
+        var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
+
+        var x = lastKnownLatitude + (targetAirport.Latitude - lastKnownLatitude) * flightCompletePart;
+		var y = lastKnownLongitude + (targetAirport.Longitude - lastKnownLongitude) * flightCompletePart;
 
 		return new WorldPosition(x, y);
 	}

@@ -13,7 +13,7 @@ namespace FlightApp.DataProcessor
         {
             flightAppData = flightAppDataUpdate;
             messageReader = flightAppBinaryMessageReader;
-            simulator = new NetworkSourceSimulator.NetworkSourceSimulator(dataFilePath, 1, 5);
+            simulator = new NetworkSourceSimulator.NetworkSourceSimulator(dataFilePath, 100, 1000);
             simulator.OnNewDataReady += Simulator_OnNewDataReady;
             simulator.OnContactInfoUpdate += Simulator_OnContactInfoUpdate;
             simulator.OnIDUpdate += Simulator_OnIDUpdate;

@@ -113,6 +113,8 @@ namespace FlightApp.DataProcessor
 
         public void UpdateData(PositionUpdateData positionUpdateData)
         {
+            WriteOperation(() =>
+                flights.ForEach(f => f.UpdateData(positionUpdateData, updateLogger)));
         }
 
         public void UpdateData(ContactInfoUpdateData contactInfoUpdateData)
