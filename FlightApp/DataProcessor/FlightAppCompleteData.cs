@@ -4,13 +4,13 @@ namespace FlightApp.DataProcessor
 {
     internal interface IFlightAppDataUpdate
     {
-        void Add(Airport airport);
-        void Add(Cargo cargo);
-        void Add(CargoPlane cargoPlane);
-        void Add(Crew crew);
-        void Add(Flight flight);
-        void Add(Passanger passanger);
-        void Add(PassangerPlane passangerPlane);
+        void Add(IAirport airport);
+        void Add(ICargo cargo);
+        void Add(ICargoPlane cargoPlane);
+        void Add(ICrew crew);
+        void Add(IFlight flight);
+        void Add(IPassanger passanger);
+        void Add(IPassangerPlane passangerPlane);
 
         void UpdateData(IDUpdateData iDUpdateData);
         void UpdateData(PositionUpdateData positionUpdateData);
@@ -20,15 +20,15 @@ namespace FlightApp.DataProcessor
 
     internal interface IFlightAppDataRead
     {
-        IReadOnlyCollection<FlightAppObject> GetCompleteData();
+        IReadOnlyCollection<IFlightAppObject> GetCompleteData();
 
-        IReadOnlyDictionary<ulong, Airport> GetAirports();
-        IReadOnlyCollection<CargoPlane> GetCargoPlanes();
-        IReadOnlyCollection<Cargo> GetCargos();
-        IReadOnlyCollection<Crew> GetCrewMembers();
-        IReadOnlyCollection<Flight> GetFlights();
-        IReadOnlyCollection<PassangerPlane> GetPassangerPlanes();
-        IReadOnlyCollection<Passanger> GetPassangers();
+        IReadOnlyCollection<IAirport> GetAirports();
+        IReadOnlyCollection<ICargoPlane> GetCargoPlanes();
+        IReadOnlyCollection<ICargo> GetCargos();
+        IReadOnlyCollection<ICrew> GetCrewMembers();
+        IReadOnlyCollection<IFlight> GetFlights();
+        IReadOnlyCollection<IPassangerPlane> GetPassangerPlanes();
+        IReadOnlyCollection<IPassanger> GetPassangers();
     }
 
     internal interface IFlightAppCompleteData: IFlightAppDataUpdate, IFlightAppDataRead
@@ -37,13 +37,13 @@ namespace FlightApp.DataProcessor
 
     internal class FlightAppCompleteData : IFlightAppCompleteData
     {
-        private ConcurrentDictionary<ulong, Airport> airports;
-        private ConcurrentBag<Flight> flights;
-        private ConcurrentBag<Crew> crewMembers;
-        private ConcurrentBag<Passanger> passangers;
-        private ConcurrentBag<PassangerPlane> passangerPlanes;
-        private ConcurrentBag<CargoPlane> cargoPlanes;
-        private ConcurrentBag<Cargo> cargos;
+        private ConcurrentBag<IAirportUpdateDecorator> airports;
+        private ConcurrentBag<IFlightUpdateDecorator> flights;
+        private ConcurrentBag<ICrewUpdateDecorator> crewMembers;
+        private ConcurrentBag<IPassangerUpdateDecorator> passangers;
+        private ConcurrentBag<IPassangerPlaneUpdateDecorator> passangerPlanes;
+        private ConcurrentBag<ICargoPlaneUpdateDecorator> cargoPlanes;
+        private ConcurrentBag<ICargoUpdateDecorator> cargos;
 
         public FlightAppCompleteData()
         {
@@ -56,35 +56,35 @@ namespace FlightApp.DataProcessor
             cargos = new();
         }
 
-        public IReadOnlyCollection<FlightAppObject> GetCompleteData()
+        public IReadOnlyCollection<IFlightAppObject> GetCompleteData()
         {
-            FlightAppObject[] data = [
-            .. airports.Values,
-            .. flights,
-            .. crewMembers,
-            .. passangers,
-            .. passangerPlanes,
-            .. cargoPlanes,
-            .. cargoPlanes,
+            IFlightAppObject[] data = [
+            .. airports.ToArray(),
+            .. flights.ToArray(),
+            .. crewMembers.ToArray(),
+            .. passangers.ToArray(),
+            .. passangerPlanes.ToArray(),
+            .. cargoPlanes.ToArray(),
+            .. cargoPlanes.ToArray(),
             ];
             return data;
         }
 
-        public IReadOnlyDictionary<ulong, Airport> GetAirports() => airports.AsReadOnly();
-        public IReadOnlyCollection<Flight> GetFlights() => flights.ToArray();
-        public IReadOnlyCollection<Crew> GetCrewMembers() => crewMembers.ToArray();
-        public IReadOnlyCollection<Passanger> GetPassangers() => passangers.ToArray();
-        public IReadOnlyCollection<PassangerPlane> GetPassangerPlanes() => passangerPlanes.ToArray();
-        public IReadOnlyCollection<CargoPlane> GetCargoPlanes() => cargoPlanes.ToArray();
-        public IReadOnlyCollection<Cargo> GetCargos() => cargos.ToArray();
+        public IReadOnlyCollection<IAirport> GetAirports() => airports.ToArray();
+        public IReadOnlyCollection<IFlight> GetFlights() => flights.ToArray();
+        public IReadOnlyCollection<ICrew> GetCrewMembers() => crewMembers.ToArray();
+        public IReadOnlyCollection<IPassanger> GetPassangers() => passangers.ToArray();
+        public IReadOnlyCollection<IPassangerPlane> GetPassangerPlanes() => passangerPlanes.ToArray();
+        public IReadOnlyCollection<ICargoPlane> GetCargoPlanes() => cargoPlanes.ToArray();
+        public IReadOnlyCollection<ICargo> GetCargos() => cargos.ToArray();
 
-        public void Add(Airport airport) => airports[airport.Id] = airport;
-        public void Add(Flight flight) => flights.Add(flight);
-        public void Add(Crew crew) => crewMembers.Add(crew);
-        public void Add(Passanger passanger) => passangers.Add(passanger);
-        public void Add(PassangerPlane passangerPlane) => passangerPlanes.Add(passangerPlane);
-        public void Add(Cargo cargo) => cargos.Add(cargo);
-        public void Add(CargoPlane cargoPlane) => cargoPlanes.Add(cargoPlane);
+        public void Add(IAirport airport) => airports.Add(new AirportUpdateDecorator(airport));
+        public void Add(IFlight flight) => flights.Add(new FlightUpdateDecorator(flight));
+        public void Add(ICrew crew) => crewMembers.Add(new CrewUpdateDecorator(crew));
+        public void Add(IPassanger passanger) => passangers.Add(new PassangerUpdateDecorator(passanger));
+        public void Add(IPassangerPlane passangerPlane) => passangerPlanes.Add(new PassangerPlaneUpdateDecorator(passangerPlane));
+        public void Add(ICargo cargo) => cargos.Add(new CargoUpdateDecorator(cargo));
+        public void Add(ICargoPlane cargoPlane) => cargoPlanes.Add(new CargoPlaneUpdateDecorator(cargoPlane));
 
         public void UpdateData(IDUpdateData iDUpdateData)
         {

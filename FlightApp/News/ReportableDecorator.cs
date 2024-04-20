@@ -13,9 +13,9 @@ namespace FlightApp.News
 
     internal class AirportReportableDecorator: ReportableDecorator
     {
-        private readonly Airport airport;
+        private readonly IAirport airport;
 
-        public AirportReportableDecorator(Airport airport)
+        public AirportReportableDecorator(IAirport airport)
             => this.airport = airport;
 
         public override string Report(INewsReporter newsReporter)
@@ -24,9 +24,9 @@ namespace FlightApp.News
 
     internal class PassangerPlaneReportableDecorator : ReportableDecorator
     {
-        private readonly PassangerPlane passangerPlane;
+        private readonly IPassangerPlane passangerPlane;
 
-        public PassangerPlaneReportableDecorator(PassangerPlane passangerPlane)
+        public PassangerPlaneReportableDecorator(IPassangerPlane passangerPlane)
             => this.passangerPlane = passangerPlane;
 
         public override string Report(INewsReporter newsReporter)
@@ -35,9 +35,9 @@ namespace FlightApp.News
 
     internal class CargoPlaneReportableDecorator : ReportableDecorator
     {
-        private readonly CargoPlane cargoPlane;
+        private readonly ICargoPlane cargoPlane;
 
-        public CargoPlaneReportableDecorator(CargoPlane cargoPlane)
+        public CargoPlaneReportableDecorator(ICargoPlane cargoPlane)
             => this.cargoPlane = cargoPlane;
 
         public override string Report(INewsReporter newsReporter)

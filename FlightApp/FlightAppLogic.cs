@@ -1,6 +1,7 @@
 ﻿using FlightApp;
 using FlightApp.DataProcessor;
 using FlightApp.News;
+using FlightApp.Serializer;
 using FlightTrackerGUI;
 using Mapsui.Projections;
 
@@ -44,7 +45,7 @@ internal class FlightAppLogic: IDisposable
 				new Newspaper("Dziennik Politechniczny"),
 			],
 			[
-			.. appData.GetAirports().Values.Select(a => new AirportReportableDecorator(a)),
+			.. appData.GetAirports().Select(a => new AirportReportableDecorator(a)),
 			.. appData.GetCargoPlanes().Select(cp => new CargoPlaneReportableDecorator(cp)),
 			.. appData.GetPassangerPlanes().Select(pp => new PassangerPlaneReportableDecorator(pp)),
 			]);
@@ -65,7 +66,7 @@ internal class FlightAppLogic: IDisposable
 	private void MapRefresh(object? state)
 	{
 		var sourceFlights = appData.GetFlights();
-		var sourceAirports = appData.GetAirports();
+		var sourceAirports = appData.GetAirports().ToDictionary(c => c.Id, c => c);
 		List<FlightGUI> flights = new List<FlightGUI>();
 
 		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)).Where(fi => fi.isLive))
@@ -81,7 +82,7 @@ internal class FlightAppLogic: IDisposable
 		Runner.UpdateGUI(flightsGUIData);
 	}
 
-	private (Flight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(Flight flight, IReadOnlyDictionary<ulong, Airport> airports)
+	private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
 	{
 		var displayTime = DateTime.Now.TimeOfDay;
 		var isLive = false;
@@ -107,7 +108,7 @@ internal class FlightAppLogic: IDisposable
 
 	}
 
-	private double CalculateFlightRotation(Flight flight, Airport originAirport, Airport targetAirport)
+	private double CalculateFlightRotation(IFlight flight, IAirport originAirport, IAirport targetAirport)
 	{
 		(double x_origin, double y_origin) = SphericalMercator.FromLonLat(originAirport.Longitude, originAirport.Latitude);
 		(double x_target, double y_target) = SphericalMercator.FromLonLat(targetAirport.Longitude, targetAirport.Latitude);
@@ -119,7 +120,7 @@ internal class FlightAppLogic: IDisposable
 		return num;
 	}
 
-	private WorldPosition CalculateFlightPosition(Flight flight, Airport originAirport, Airport targetAirport, TimeSpan timeOfDay)
+	private WorldPosition CalculateFlightPosition(IFlight flight, IAirport originAirport, IAirport targetAirport, TimeSpan timeOfDay)
 	{
 		if (flight.Longitude.HasValue && flight.Latitude.HasValue)
 		{

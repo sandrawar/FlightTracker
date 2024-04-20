@@ -1,16 +1,8 @@
-﻿using FlightApp.News;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace FlightApp;
 
-[JsonDerivedType(typeof(Crew))]
-[JsonDerivedType(typeof(Passanger))]
-[JsonDerivedType(typeof(Cargo))]
-[JsonDerivedType(typeof(CargoPlane))]
-[JsonDerivedType(typeof(PassangerPlane))]
-[JsonDerivedType(typeof(Airport))]
-[JsonDerivedType(typeof(Flight))]
-internal abstract class FlightAppObject
+internal abstract class FlightAppObject : IFlightAppObject
 {
     protected FlightAppObject(string classType, ulong id)
     {
@@ -23,9 +15,9 @@ internal abstract class FlightAppObject
     public string ClassType { get; }
 }
 
-internal abstract class Person : FlightAppObject
+internal abstract class Person : FlightAppObject, IPerson
 {
-    protected Person(string classType, ulong id, string name, ulong age, string phone, string email) 
+    protected Person(string classType, ulong id, string name, ulong age, string phone, string email)
         : base(classType, id)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -43,7 +35,7 @@ internal abstract class Person : FlightAppObject
     public string Email { get; }
 }
 
-internal class Crew : Person
+internal class Crew : Person, ICrew
 {
     public Crew(ulong id, string name, ulong age, string phone, string email, ushort practice, string role)
         : base("C", id, name, age, phone, email)
@@ -57,7 +49,7 @@ internal class Crew : Person
     public string Role { get; }
 }
 
-internal class Passanger : Person
+internal class Passanger : Person, IPassanger
 {
     public Passanger(ulong id, string name, ulong age, string phone, string email, string @class, ulong miles)
         : base("P", id, name, age, phone, email)
@@ -72,9 +64,9 @@ internal class Passanger : Person
     public ulong Miles { get; }
 }
 
-internal class Cargo : FlightAppObject
+internal class Cargo : FlightAppObject, ICargo
 {
-    public Cargo(ulong id, float weight, string code, string description) 
+    public Cargo(ulong id, float weight, string code, string description)
         : base("CA", id)
     {
         Weight = weight;
@@ -89,7 +81,7 @@ internal class Cargo : FlightAppObject
     public string Description { get; }
 }
 
-internal abstract class Plane : FlightAppObject
+internal abstract class Plane : FlightAppObject, IPlane
 {
     protected Plane(string classType, ulong id, string serial, string country, string model)
         : base(classType, id)
@@ -106,9 +98,9 @@ internal abstract class Plane : FlightAppObject
     public string Model { get; }
 }
 
-internal class CargoPlane : Plane
+internal class CargoPlane : Plane, ICargoPlane
 {
-    public CargoPlane(ulong id, string serial, string country, string model, float maxLoad) 
+    public CargoPlane(ulong id, string serial, string country, string model, float maxLoad)
         : base("CP", id, serial, country, model)
     {
         MaxLoad = maxLoad;
@@ -117,9 +109,9 @@ internal class CargoPlane : Plane
     public float MaxLoad { get; }
 }
 
-internal class PassangerPlane : Plane
+internal class PassangerPlane : Plane, IPassangerPlane
 {
-    public PassangerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize) 
+    public PassangerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize)
         : base("PP", id, serial, country, model)
     {
         FirstClassSize = firstClassSize;
@@ -134,9 +126,9 @@ internal class PassangerPlane : Plane
     public ushort EconomyClassSize { get; }
 }
 
-internal class Airport : FlightAppObject
+internal class Airport : FlightAppObject, IAirport
 {
-    public Airport(ulong id, string name, string code, float longitude, float latitude, float aMSL, string country) 
+    public Airport(ulong id, string name, string code, float longitude, float latitude, float aMSL, string country)
         : base("AI", id)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -160,19 +152,19 @@ internal class Airport : FlightAppObject
     public string Country { get; }
 }
 
-internal class Flight : FlightAppObject
+internal class Flight : FlightAppObject, IFlight
 {
     public Flight(
-        ulong id, 
-        ulong originAsID, 
-        ulong targetAsID, 
-        DateTime takeoffTime, 
-        DateTime landingTime, 
-        float? longitude, 
-        float? latitude, 
-        float? aMSL, 
-        ulong planeID, 
-        ulong[] crewAsIDs, 
+        ulong id,
+        ulong originAsID,
+        ulong targetAsID,
+        DateTime takeoffTime,
+        DateTime landingTime,
+        float? longitude,
+        float? latitude,
+        float? aMSL,
+        ulong planeID,
+        ulong[] crewAsIDs,
         ulong[] loadAsIDs)
         : base("FL", id)
     {
