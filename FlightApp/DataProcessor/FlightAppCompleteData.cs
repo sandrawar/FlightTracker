@@ -1,5 +1,4 @@
 ﻿using FlightApp.Logger;
-using System.Collections.Concurrent;
 
 namespace FlightApp.DataProcessor
 {

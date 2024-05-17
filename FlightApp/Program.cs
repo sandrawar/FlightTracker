@@ -1,4 +1,5 @@
-﻿using FlightApp.DataProcessor;
+﻿using FlightApp.Commands;
+using FlightApp.DataProcessor;
 using FlightApp.Logger;
 
 internal class Program
@@ -8,8 +9,9 @@ internal class Program
         var logger = new Logger();
         IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData(logger);
         IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
+        IFlighAppCommandProcessor flighAppCommandProcessor = new FlighAppCommandProcessor(flightAppCompleteData);
 
-        var logic = new FlightAppLogic(flightAppCompleteData);
+        var logic = new FlightAppLogic(flightAppCompleteData, flighAppCommandProcessor);
 
         try
         {
@@ -26,18 +28,16 @@ internal class Program
                     case "exit":
                         endApplication = true;
                         break;
-                    case "print":
-                        logic.MakeSnapshot();
-                        Console.WriteLine("Snapshot created");
-                        break;
-                    case "report":
-                        foreach (var info in logic.Report())
-                        {
-                            Console.WriteLine(info);
-                        }
-                        break;
+
                     default:
-                        Console.WriteLine("Unrecognized command");
+                        if (command is { })
+                        {
+                            var result = logic.ProcessCommand(command);
+                            foreach (var info in result.Messages)
+                            {
+                                Console.WriteLine(info);
+                            }
+                        }
                         break;
                 }
             }
@@ -55,6 +55,10 @@ internal class Program
             Console.WriteLine("  exit - close application");
             Console.WriteLine("  print - create data snapshot");
             Console.WriteLine("  report - create news report");
+            Console.WriteLine("  display {object_fields} from {object_class} [where {conditions}]");
+            Console.WriteLine("  update (object_class} set ({key_value_List}) [where {conditions}]");
+            Console.WriteLine("  delete {object_class} [where {conditions}]");
+            Console.WriteLine("  add {object_class} new ({key_value_List})");
         }
     }
 

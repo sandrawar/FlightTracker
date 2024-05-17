@@ -1,4 +1,5 @@
 ﻿using FlightApp;
+using FlightApp.Commands;
 using FlightApp.DataProcessor;
 using FlightApp.News;
 using FlightApp.Serializer;
@@ -8,12 +9,14 @@ using Mapsui.Projections;
 internal class FlightAppLogic: IDisposable
 {
 	private readonly IFlightAppDataRead appData;
+	private readonly IFlighAppCommandProcessor cmdProcessor;
 	private readonly Timer timer;
 	private bool disposedValue;
 
-	public FlightAppLogic(IFlightAppDataRead flightAppData)
+	public FlightAppLogic(IFlightAppDataRead flightAppData, IFlighAppCommandProcessor commandProcessor)
 	{
 		appData = flightAppData;
+		cmdProcessor = commandProcessor;
 		timer = new Timer(new TimerCallback(MapRefresh), null, Timeout.Infinite, Timeout.Infinite);
 	}
 
@@ -25,44 +28,8 @@ internal class FlightAppLogic: IDisposable
 		timer.Change(1000, 1000);
 	}
 
-	public void MakeSnapshot()
-	{
-		var snapshotFileName = $"snapshot_{DateTime.Now:HH_mm_ss}.json";
-		IDataSerializer serializer = new DataJsonSerializer();
-		var data = appData.GetCompleteData();
-		serializer.Serialize(data, snapshotFileName);
-	}
-
-	public IEnumerable<string> Report()
-	{
-		var generator = new NewsGenerator(
-			[
-				new Televison("Telewizja Abelowa"),
-				new Televison("Kanał TV-tensor"),
-				new Radio("Radio Kwantyfikator"),
-				new Radio("Radio Shmem"),
-				new Newspaper("Gazeta Kategoryczna"),
-				new Newspaper("Dziennik Politechniczny"),
-			],
-			[
-			.. appData.GetAirports().Select(a => new AirportReportableDecorator(a)),
-			.. appData.GetCargoPlanes().Select(cp => new CargoPlaneReportableDecorator(cp)),
-			.. appData.GetPassangerPlanes().Select(pp => new PassangerPlaneReportableDecorator(pp)),
-			]);
-
-
-		string? info;
-		do
-		{
-			info = generator.GenerateNextNews();
-			if (info != null)
-			{
-				yield return info;
-			}
-		}
-		while (info != null);
-	}
-
+	public CommandResult ProcessCommand(string command) => cmdProcessor.ProcessCommand(command);
+	
 	private void MapRefresh(object? state)
 	{
 		var sourceFlights = appData.GetFlights();
@@ -82,7 +49,7 @@ internal class FlightAppLogic: IDisposable
 		Runner.UpdateGUI(flightsGUIData);
 	}
 
-    private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
+	private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
 	{
 		var displayTime = DateTime.Now.TimeOfDay;
 		var isLive = false;
@@ -111,9 +78,9 @@ internal class FlightAppLogic: IDisposable
 
 	private double CalculateFlightRotation(IFlight flight, IAirport originAirport, IAirport targetAirport)
 	{
-        var lastKnownLatitude = flight.Latitude ?? originAirport.Latitude;
-        var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
-        (double x_origin, double y_origin) = SphericalMercator.FromLonLat(lastKnownLongitude, lastKnownLatitude);
+		var lastKnownLatitude = flight.Latitude ?? originAirport.Latitude;
+		var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
+		(double x_origin, double y_origin) = SphericalMercator.FromLonLat(lastKnownLongitude, lastKnownLatitude);
 		(double x_target, double y_target) = SphericalMercator.FromLonLat(targetAirport.Longitude, targetAirport.Latitude);
 		double num = Math.PI / 2 - Math.Atan2(y_target - y_origin, x_target - x_origin); 
 		if (num <= 0.0)
@@ -125,8 +92,8 @@ internal class FlightAppLogic: IDisposable
 
 	private WorldPosition CalculateFlightPosition(IFlight flight, IAirport originAirport, IAirport targetAirport, TimeSpan timeOfDay)
 	{
-        var lastKnownPositionTime = flight.LastPositionTime ?? flight.TakeoffTime;
-        var flightDuracy = flight.LandingTime.TimeOfDay - lastKnownPositionTime.TimeOfDay;
+		var lastKnownPositionTime = flight.LastPositionTime ?? flight.TakeoffTime;
+		var flightDuracy = flight.LandingTime.TimeOfDay - lastKnownPositionTime.TimeOfDay;
 		if (flightDuracy < TimeSpan.Zero)
 		{
 			flightDuracy += TimeSpan.FromDays(1);
@@ -141,9 +108,9 @@ internal class FlightAppLogic: IDisposable
 		var flightCompletePart = flightTime / flightDuracy;
 
 		var lastKnownLatitude = flight.Latitude ?? originAirport.Latitude;
-        var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
+		var lastKnownLongitude = flight.Longitude ?? originAirport.Longitude;
 
-        var x = lastKnownLatitude + (targetAirport.Latitude - lastKnownLatitude) * flightCompletePart;
+		var x = lastKnownLatitude + (targetAirport.Latitude - lastKnownLatitude) * flightCompletePart;
 		var y = lastKnownLongitude + (targetAirport.Longitude - lastKnownLongitude) * flightCompletePart;
 
 		return new WorldPosition(x, y);
