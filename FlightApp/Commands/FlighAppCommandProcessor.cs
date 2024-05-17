@@ -38,9 +38,40 @@ namespace FlightApp.Commands
 
         public void Reset() => ResetChain();
 
-        public void InsertCommand(Func<IFlighAppCommand, IFlighAppCommand> commandBuild)
+        public CommandChainBuilder InsertMakeSnapshot(IFlightAppDataRead data)
         {
-            commandChainStart = commandBuild(commandChainStart);
+            commandChainStart = new MakeSnapshot(data, commandChainStart);
+            return this;
+        }
+
+        public CommandChainBuilder InsertGenerateNewsReport(IFlightAppDataRead data)
+        {
+            commandChainStart = new GenerateNewsReport(data, commandChainStart);
+            return this;
+        }
+
+        public CommandChainBuilder InsertDisplayQuery(IFlighAppQueryProcessor queryProcessor)
+        {
+            commandChainStart = new DisplayQuery(queryProcessor, commandChainStart);
+            return this;
+        }
+
+        public CommandChainBuilder InsertAddQuery(IFlighAppQueryProcessor queryProcessor)
+        {
+            commandChainStart = new AddQuery(queryProcessor, commandChainStart);
+            return this;
+        }
+
+        public CommandChainBuilder InsertDeleteQuery(IFlighAppQueryProcessor queryProcessor)
+        {
+            commandChainStart = new DeleteQuery(queryProcessor, commandChainStart);
+            return this;
+        }
+
+        public CommandChainBuilder InsertUpdateQuery(IFlighAppQueryProcessor queryProcessor)
+        {
+            commandChainStart = new UpdateQuery(queryProcessor, commandChainStart);
+            return this;
         }
 
         public IFlighAppCommand Build()
@@ -55,45 +86,6 @@ namespace FlightApp.Commands
             commandChainStart = new CommandChainTermination();
             return commandChainStart;
 
-        }
-    }
-
-    internal static class CommandChainBuilderExtensions
-    {
-        public static CommandChainBuilder InsertMakeSnapshot(this CommandChainBuilder builder, IFlightAppDataRead data)
-        {
-            builder.InsertCommand(nextInChain => new MakeSnapshot(data, nextInChain));
-            return builder;
-        }
-
-        public static CommandChainBuilder InsertGenerateNewsReport(this CommandChainBuilder builder, IFlightAppDataRead data)
-        {
-            builder.InsertCommand(nextInChain => new GenerateNewsReport(data, nextInChain));
-            return builder;
-        }
-
-        public static CommandChainBuilder InsertDisplayQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
-        {
-            builder.InsertCommand(nextInChain => new DisplayQuery(queryProcessor, nextInChain));
-            return builder;
-        }
-
-        public static CommandChainBuilder InsertAddQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
-        {
-            builder.InsertCommand(nextInChain => new AddQuery(queryProcessor, nextInChain));
-            return builder;
-        }
-
-        public static CommandChainBuilder InsertDeleteQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
-        {
-            builder.InsertCommand(nextInChain => new DeleteQuery(queryProcessor, nextInChain));
-            return builder;
-        }
-
-        public static CommandChainBuilder InsertUpdateQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
-        {
-            builder.InsertCommand(nextInChain => new UpdateQuery(queryProcessor, nextInChain));
-            return builder;
         }
     }
 }
