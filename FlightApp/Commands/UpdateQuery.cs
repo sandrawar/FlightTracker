@@ -1,25 +1,33 @@
-﻿using FlightApp.DataProcessor;
+﻿using FlightApp.Query;
 using System.Text.RegularExpressions;
 
 namespace FlightApp.Commands
 {
-    internal class UpdateQuery : CommandChainUpdate
+    internal class UpdateQuery : CommandChainQuery
     {
         private Regex regex;
 
-        public UpdateQuery(IFlightAppDataUpdate data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
+        public UpdateQuery(IFlighAppQueryProcessor queryProcessor, IFlighAppCommand nextCommandInChain) : base(queryProcessor, nextCommandInChain)
         {
-            regex = new Regex(@"update\s+(\w+)\s+set\s+\((.+)\)(?:\s+where\s+(.+))", RegexOptions.Compiled);
+            regex = new Regex(@"(?<operation>update)\s+(?<class>\w+)\s+set\s+\((?<values>.+)\)(?:\s+where\s+(?<conditions>.+))?", RegexOptions.Compiled);
         }
 
         protected override CommandResult? ExecuteCommand(string commands)
         {
-            if (!regex.IsMatch(commands))
+            var match = regex.Match(commands);
+            if (!match.Success) 
             {
                 return null;
             }
 
-            return new CommandResult([$"update: {commands}"]);
+            return QueryProcessor.ExecuteQuery(
+                new FlighAppQuery(
+                    match.Groups["operation"].Value,
+                    match.Groups["class"].Value,
+                    match.Groups["conditions"]?.Value,
+                    match.Groups["values"].Value,
+                    null
+                ));
         }
     }
 }

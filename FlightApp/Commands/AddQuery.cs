@@ -1,25 +1,33 @@
-﻿using FlightApp.DataProcessor;
+﻿using FlightApp.Query;
 using System.Text.RegularExpressions;
 
 namespace FlightApp.Commands
 {
-    internal class AddQuery : CommandChainUpdate
+    internal class AddQuery : CommandChainQuery
     {
         private Regex regex;
 
-        public AddQuery(IFlightAppDataUpdate data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
+        public AddQuery(IFlighAppQueryProcessor queryProcessor, IFlighAppCommand nextCommandInChain) : base(queryProcessor, nextCommandInChain)
         {
-            regex = new Regex(@"add\s+(\w+)\s+new\s+\((.+)\)", RegexOptions.Compiled);
+            regex = new Regex(@"(?<operation>add)\s+(?<class>\w+)\s+new\s+\((?<values>.+)\)", RegexOptions.Compiled);
         }
 
         protected override CommandResult? ExecuteCommand(string commands)
         {
-            if (!regex.IsMatch(commands))
+            var match = regex.Match(commands);
+            if (!match.Success)
             {
                 return null;
             }
 
-            return new CommandResult([$"add: {commands}"]);
+            return QueryProcessor.ExecuteQuery(
+                new FlighAppQuery(
+                    match.Groups["operation"].Value,
+                    match.Groups["class"].Value,
+                    null,
+                    match.Groups["values"].Value,
+                    null
+                ));
         }
     }
 }

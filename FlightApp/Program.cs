@@ -1,6 +1,7 @@
 ﻿using FlightApp.Commands;
 using FlightApp.DataProcessor;
 using FlightApp.Logger;
+using FlightApp.Query;
 
 internal class Program
 {
@@ -9,7 +10,8 @@ internal class Program
         var logger = new Logger();
         IFlightAppCompleteData flightAppCompleteData = new FlightAppCompleteData(logger);
         IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
-        IFlighAppCommandProcessor flighAppCommandProcessor = new FlighAppCommandProcessor(flightAppCompleteData);
+        IFlighAppQueryProcessor flighAppQueryProcessor = new FlighAppQueryProcessor(flightAppCompleteData);
+        IFlighAppCommandProcessor flighAppCommandProcessor = new FlighAppCommandProcessor(flightAppCompleteData, flighAppQueryProcessor);
 
         var logic = new FlightAppLogic(flightAppCompleteData, flighAppCommandProcessor);
 

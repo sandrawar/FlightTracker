@@ -1,4 +1,5 @@
 ﻿using FlightApp.DataProcessor;
+using FlightApp.Query;
 
 namespace FlightApp.Commands
 {
@@ -22,10 +23,9 @@ namespace FlightApp.Commands
         protected abstract CommandResult? ExecuteCommand(string commands);
     }
 
-
     internal abstract class CommandChainRead : FlighAppCommandChainBase
     {
-        protected CommandChainRead(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain): base(nextCommandInChain)
+        protected CommandChainRead(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain) : base(nextCommandInChain)
         {
             Data = data;
         }
@@ -33,14 +33,15 @@ namespace FlightApp.Commands
         protected IFlightAppDataRead Data { get; }
     }
 
-    internal abstract class CommandChainUpdate : FlighAppCommandChainBase
+
+    internal abstract class CommandChainQuery : FlighAppCommandChainBase
     {
-        protected CommandChainUpdate(IFlightAppDataUpdate data, IFlighAppCommand nextCommandInChain) : base(nextCommandInChain)
+        protected CommandChainQuery(IFlighAppQueryProcessor queryProcessor, IFlighAppCommand nextCommandInChain): base(nextCommandInChain)
         {
-            Data = data;
+            QueryProcessor = queryProcessor;
         }
 
-        protected IFlightAppDataUpdate Data { get; }
+        protected IFlighAppQueryProcessor QueryProcessor { get; }
     }
 
     internal class CommandChainTermination : IFlighAppCommand

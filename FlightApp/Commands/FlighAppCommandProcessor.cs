@@ -1,4 +1,5 @@
 ﻿using FlightApp.DataProcessor;
+using FlightApp.Query;
 
 namespace FlightApp.Commands
 {
@@ -11,15 +12,15 @@ namespace FlightApp.Commands
     {
         private IFlighAppCommand commandChain;
 
-        public FlighAppCommandProcessor(IFlightAppCompleteData flightAppData)
+        public FlighAppCommandProcessor(IFlightAppCompleteData flightAppData, IFlighAppQueryProcessor flighAppQueryProcessor)
         {
             commandChain = new CommandChainBuilder()
                 .InsertMakeSnapshot(flightAppData)
                 .InsertGenerateNewsReport(flightAppData)
-                .InsertDisplayQuery(flightAppData)
-                .InsertAddQuery(flightAppData)
-                .InsertDeleteQuery(flightAppData)
-                .InsertUpdateQuery(flightAppData)
+                .InsertDisplayQuery(flighAppQueryProcessor)
+                .InsertAddQuery(flighAppQueryProcessor)
+                .InsertDeleteQuery(flighAppQueryProcessor)
+                .InsertUpdateQuery(flighAppQueryProcessor)
                 .Build();
         }
 
@@ -71,27 +72,27 @@ namespace FlightApp.Commands
             return builder;
         }
 
-        public static CommandChainBuilder InsertDisplayQuery(this CommandChainBuilder builder, IFlightAppDataRead data)
+        public static CommandChainBuilder InsertDisplayQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
         {
-            builder.InsertCommand(nextInChain => new DisplayQuery(data, nextInChain));
+            builder.InsertCommand(nextInChain => new DisplayQuery(queryProcessor, nextInChain));
             return builder;
         }
 
-        public static CommandChainBuilder InsertAddQuery(this CommandChainBuilder builder, IFlightAppDataUpdate data)
+        public static CommandChainBuilder InsertAddQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
         {
-            builder.InsertCommand(nextInChain => new AddQuery(data, nextInChain));
+            builder.InsertCommand(nextInChain => new AddQuery(queryProcessor, nextInChain));
             return builder;
         }
 
-        public static CommandChainBuilder InsertDeleteQuery(this CommandChainBuilder builder, IFlightAppDataUpdate data)
+        public static CommandChainBuilder InsertDeleteQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
         {
-            builder.InsertCommand(nextInChain => new DeleteQuery(data, nextInChain));
+            builder.InsertCommand(nextInChain => new DeleteQuery(queryProcessor, nextInChain));
             return builder;
         }
 
-        public static CommandChainBuilder InsertUpdateQuery(this CommandChainBuilder builder, IFlightAppDataUpdate data)
+        public static CommandChainBuilder InsertUpdateQuery(this CommandChainBuilder builder, IFlighAppQueryProcessor queryProcessor)
         {
-            builder.InsertCommand(nextInChain => new UpdateQuery(data, nextInChain));
+            builder.InsertCommand(nextInChain => new UpdateQuery(queryProcessor, nextInChain));
             return builder;
         }
     }
