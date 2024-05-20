@@ -1,4 +1,5 @@
-﻿using FlightApp.Command;
+﻿using FlightApp;
+using FlightApp.Command;
 using FlightApp.DataProcessor;
 using FlightApp.Logger;
 using FlightApp.Query;
@@ -38,10 +39,12 @@ internal class Program
                         if (command is not null)
                         {
                             var result = logic.ProcessCommand(command);
-                            foreach (var info in result.Messages)
+                            ConsoleOutput.PrintData(result.Messages);
+                            if (result.QueryTable is not null)
                             {
-                                Console.WriteLine(info);
+                                ConsoleOutput.PrintTable(result.QueryTable);
                             }
+
                         }
                         break;
                 }
@@ -55,16 +58,17 @@ internal class Program
 
         void PrintManual()
         {
-            Console.WriteLine(string.Empty);
-            Console.WriteLine("Flight App commands:");
-            Console.WriteLine("  exit - close application");
-            Console.WriteLine("  print - create data snapshot");
-            Console.WriteLine("  report - create news report");
-            Console.WriteLine("  display {object_fields} from {object_class} [where {conditions}]");
-            Console.WriteLine("  update (object_class} set ({key_value_List}) [where {conditions}]");
-            Console.WriteLine("  delete {object_class} [where {conditions}]");
-            Console.WriteLine("  add {object_class} new ({key_value_List})");
+            ConsoleOutput.PrintData([
+                string.Empty,
+                "Flight App commands:",
+                "  exit - close application",
+                "  print - create data snapshot",
+                "  report - create news report",
+                "  display {object_fields} from {object_class} [where {conditions}]",
+                "  update (object_class} set ({key_value_List}) [where {conditions}]",
+                "  delete {object_class} where {conditions}]",
+                "  add {object_class} new ({key_value_List})",
+            ]);
         }
     }
-
 }

@@ -15,11 +15,11 @@ namespace FlightApp.DataProcessor
             EmailAddress = emailAddress;
         }
 
-        public ulong ObjectID { get; init; }
+        public ulong ObjectID { get; }
 
-        public string PhoneNumber { get; init; }
+        public string PhoneNumber { get; }
 
-        public string EmailAddress { get; init; }
+        public string EmailAddress { get; }
     }
 
     internal sealed class PositionUpdateData
@@ -32,13 +32,13 @@ namespace FlightApp.DataProcessor
             AMSL = aMSL;
         }
 
-        public ulong ObjectID { get; init; }
+        public ulong ObjectID { get; }
 
-        public float Longitude { get; init; }
+        public float Longitude { get; }
 
-        public float Latitude { get; init; }
+        public float Latitude { get; }
 
-        public float AMSL { get; init; }
+        public float AMSL { get; }
     }
 
     internal sealed class IDUpdateData
@@ -49,9 +49,9 @@ namespace FlightApp.DataProcessor
             NewObjectID = newObjectID;
         }
 
-        public ulong ObjectID { get; init; }
+        public ulong ObjectID { get; }
 
-        public ulong NewObjectID { get; init; }
+        public ulong NewObjectID { get; }
     }
 
 

@@ -25,7 +25,7 @@ namespace FlightApp.Command.Operation
             Data = data;
         }
 
-        protected IFlightAppDataRead Data { get; init; }
+        protected IFlightAppDataRead Data { get; }
     }
 
     internal class CommandChainTermination : IFlighAppCommand

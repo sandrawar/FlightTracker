@@ -31,11 +31,6 @@ namespace FlightApp.Query.Processing
             };
 
             return operationResult;
-
-            //TODO: remove
-            //return new CommandResult([
-            //    .. operationResult.Messages,
-            //    $"Execute{operation}: {queryExecution.GetType().Name}"]);
         }
 
         private CommandResult ProcessAdd<TObjectClass>(IQueryExecution<TObjectClass> queryExecution)

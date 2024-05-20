@@ -53,7 +53,7 @@ namespace FlightApp.DataProcessor
             Decorated = decoratedObject;
         }
 
-        protected TDecoratedType Decorated { get; init; }
+        protected TDecoratedType Decorated { get; }
 
         public string ClassType => Decorated.ClassType;
 

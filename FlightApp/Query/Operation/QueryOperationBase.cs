@@ -1,4 +1,5 @@
 ﻿using FlightApp.Query.Processing;
+using FlightApp.Query.Validation;
 
 namespace FlightApp.Query.Operation
 {
@@ -8,14 +9,17 @@ namespace FlightApp.Query.Operation
         private readonly QueryObjectClass objectClass;
         private readonly IFlightAppQuery nextOperationInChain;
 
-        protected QueryOperationBase(IFlightAppQueryProcessor flightAppQueryProcessor, QueryObjectClass queryObjectClass, IFlightAppQuery nextOperation)
+        protected QueryOperationBase(
+            IFlightAppQueryProcessor flightAppQueryProcessor, 
+            QueryObjectClass queryObjectClass, 
+            IFlightAppQuery nextOperation)
         {
             QueryProcessor = flightAppQueryProcessor;
             objectClass = queryObjectClass;
             nextOperationInChain = nextOperation;
         }
 
-        protected IFlightAppQueryProcessor QueryProcessor {get; init; }
+        protected IFlightAppQueryProcessor QueryProcessor {get; }
 
         public CommandResult Execute(FlighAppQueryData query)
         {
@@ -25,14 +29,10 @@ namespace FlightApp.Query.Operation
             }
 
             return ExecuteQuery(query);
-
-            //TODO: remove
-            //var res = ExecuteQuery(query);
-
-            //return QueryInfoResult(res, query);
         }
 
 
+        protected abstract IFieldsValidation FieldValidation {get; }
         protected abstract CommandResult ExecuteQuery(FlighAppQueryData query);
 
         private bool ValidateQueryData(FlighAppQueryData query) 
@@ -41,22 +41,10 @@ namespace FlightApp.Query.Operation
             {
                 QueryOperation.Add => query.Values is not null,
                 QueryOperation.Delete => true,
-                QueryOperation.Display => query.Fields is not null,
+                QueryOperation.Display => query.Fields is not null && FieldValidation.ValidateFields(query.Fields),
                 QueryOperation.Update => query.Values is not null,
                 _ => false
             };
-
-        //TODO: remove
-        //private CommandResult QueryInfoResult(CommandResult inner, FlighAppQueryData query)
-        //    => new CommandResult([
-        //        .. inner.Messages,
-        //        $"handledBy: {GetType().Name}",
-        //        $"operation: {query.Operation}",
-        //        $"class: {query.ObjectClass}",
-        //        $"conditions: {query.Conditions}",
-        //        $"values: {query.Values}",
-        //        $"fields: {query.Fields}",
-        //    ]);
     }
 
     internal class QueryChainTermination : IFlightAppQuery
