@@ -30,7 +30,18 @@ namespace FlightApp.DataProcessor
         IReadOnlyCollection<IPassanger> GetPassangers();
     }
 
-    internal interface IFlightAppCompleteData : IFlightAppDataUpdate, IFlightAppDataRead
+    internal interface IFlightAppDataQueryRepository : IFlightAppDataUpdate
+    {
+        IReadOnlyCollection<IAirportUpdateDecorator> GetAirportsUpdate();
+        IReadOnlyCollection<ICargoPlaneUpdateDecorator> GetCargoPlanesUpdate();
+        IReadOnlyCollection<ICargoUpdateDecorator> GetCargosUpdate();
+        IReadOnlyCollection<ICrewUpdateDecorator> GetCrewMembersUpdate();
+        IReadOnlyCollection<IFlightUpdateDecorator> GetFlightsUpdate();
+        IReadOnlyCollection<IPassangerPlaneUpdateDecorator> GetPassangerPlanesUpdate();
+        IReadOnlyCollection<IPassangerUpdateDecorator> GetPassangersUpdate();
+    }
+
+    internal interface IFlightAppCompleteData : IFlightAppDataRead, IFlightAppDataUpdate, IFlightAppDataQueryRepository
     {
     }
 
@@ -74,13 +85,13 @@ namespace FlightApp.DataProcessor
             .. cargoPlanes.ToArray(),
             ]);
 
-        public IReadOnlyCollection<IAirport> GetAirports() => ReadOperation(() => airports.ToArray());
-        public IReadOnlyCollection<IFlight> GetFlights() => ReadOperation(() => flights.ToArray());
-        public IReadOnlyCollection<ICrew> GetCrewMembers() => ReadOperation(() => crewMembers.ToArray());
-        public IReadOnlyCollection<IPassanger> GetPassangers() => ReadOperation(() => passangers.ToArray());
-        public IReadOnlyCollection<IPassangerPlane> GetPassangerPlanes() => ReadOperation(() => passangerPlanes.ToArray());
-        public IReadOnlyCollection<ICargoPlane> GetCargoPlanes() => ReadOperation(() => cargoPlanes.ToArray());
-        public IReadOnlyCollection<ICargo> GetCargos() => ReadOperation(() => cargos.ToArray());
+        public IReadOnlyCollection<IAirport> GetAirports() => ReadOperation(airports.ToArray);
+        public IReadOnlyCollection<IFlight> GetFlights() => ReadOperation(flights.ToArray);
+        public IReadOnlyCollection<ICrew> GetCrewMembers() => ReadOperation(crewMembers.ToArray);
+        public IReadOnlyCollection<IPassanger> GetPassangers() => ReadOperation(passangers.ToArray);
+        public IReadOnlyCollection<IPassangerPlane> GetPassangerPlanes() => ReadOperation(passangerPlanes.ToArray);
+        public IReadOnlyCollection<ICargoPlane> GetCargoPlanes() => ReadOperation(cargoPlanes.ToArray);
+        public IReadOnlyCollection<ICargo> GetCargos() => ReadOperation(cargos.ToArray);
 
         public void Add(IAirport airport) => WriteOperation(() => airports.Add(new AirportUpdateDecorator(airport)));
         public void Add(IFlight flight) => WriteOperation(() => flights.Add(new FlightUpdateDecorator(flight)));
@@ -148,5 +159,19 @@ namespace FlightApp.DataProcessor
                 locker.ExitReadLock();
             }
         }
+
+        public IReadOnlyCollection<IAirportUpdateDecorator> GetAirportsUpdate() => ReadOperation(airports.ToArray);
+
+        public IReadOnlyCollection<ICargoPlaneUpdateDecorator> GetCargoPlanesUpdate() => ReadOperation(cargoPlanes.ToArray);
+
+        public IReadOnlyCollection<ICargoUpdateDecorator> GetCargosUpdate() => ReadOperation(cargos.ToArray);
+
+        public IReadOnlyCollection<ICrewUpdateDecorator> GetCrewMembersUpdate() => ReadOperation(crewMembers.ToArray);
+
+        public IReadOnlyCollection<IFlightUpdateDecorator> GetFlightsUpdate() => ReadOperation(flights.ToArray);
+
+        public IReadOnlyCollection<IPassangerPlaneUpdateDecorator> GetPassangerPlanesUpdate() => ReadOperation(passangerPlanes.ToArray);
+
+        public IReadOnlyCollection<IPassangerUpdateDecorator> GetPassangersUpdate() => ReadOperation(passangers.ToArray);
     }
 }

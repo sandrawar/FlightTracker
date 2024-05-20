@@ -1,19 +1,17 @@
 ﻿using FlightApp;
-using FlightApp.Commands;
+using FlightApp.Command;
 using FlightApp.DataProcessor;
-using FlightApp.News;
-using FlightApp.Serializer;
 using FlightTrackerGUI;
 using Mapsui.Projections;
 
 internal class FlightAppLogic: IDisposable
 {
 	private readonly IFlightAppDataRead appData;
-	private readonly IFlighAppCommandProcessor cmdProcessor;
+	private readonly IFlighAppCommandLibrary cmdProcessor;
 	private readonly Timer timer;
 	private bool disposedValue;
 
-	public FlightAppLogic(IFlightAppDataRead flightAppData, IFlighAppCommandProcessor commandProcessor)
+	public FlightAppLogic(IFlightAppDataRead flightAppData, IFlighAppCommandLibrary commandProcessor)
 	{
 		appData = flightAppData;
 		cmdProcessor = commandProcessor;
@@ -28,7 +26,7 @@ internal class FlightAppLogic: IDisposable
 		timer.Change(1000, 1000);
 	}
 
-	public CommandResult ProcessCommand(string command) => cmdProcessor.ProcessCommand(command);
+	public CommandResult ProcessCommand(string command) => cmdProcessor.Execute(command);
 	
 	private void MapRefresh(object? state)
 	{

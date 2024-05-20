@@ -1,11 +1,11 @@
 ﻿using FlightApp.DataProcessor;
 using FlightApp.Serializer;
 
-namespace FlightApp.Commands
+namespace FlightApp.Command.Operation
 {
-    internal class MakeSnapshot: CommandChainRead
+    internal class MakeSnapshotCommandOperation : CommandChainRead
     {
-        public MakeSnapshot(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
+        public MakeSnapshotCommandOperation(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
         {
         }
 

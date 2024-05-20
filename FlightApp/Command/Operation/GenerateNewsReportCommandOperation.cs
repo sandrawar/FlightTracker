@@ -1,11 +1,11 @@
 ﻿using FlightApp.DataProcessor;
 using FlightApp.News;
 
-namespace FlightApp.Commands
+namespace FlightApp.Command.Operation
 {
-    internal class GenerateNewsReport : CommandChainRead
+    internal class GenerateNewsReportCommandOperation : CommandChainRead
     {
-        public GenerateNewsReport(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
+        public GenerateNewsReportCommandOperation(IFlightAppDataRead data, IFlighAppCommand nextCommandInChain) : base(data, nextCommandInChain)
         {
         }
 
