@@ -8,7 +8,6 @@ namespace FlightApp.Query.Processing.Execution
     {
         private static readonly Lazy<IDictionary<string, Func<IAirportUpdateDecorator, string>>> sourceReadLazy = new (CreateSourceReadDictionary);
         private static readonly Lazy<IDictionary<string, Func<IAirportUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>>> compareLibLazy = new (CreateCompareDictionary);
-        private static readonly Lazy<IDictionary<string, Action<CreateRecordAirport, string>>> addLibLazy = new (CreateAddDictionary);
 
         public QueryAirportExecution(IFlightAppDataQueryRepository flightAppDataQueryRepository, FlighAppQueryData flighAppQueryData): base(flightAppDataQueryRepository, flighAppQueryData)
         {
@@ -21,7 +20,24 @@ namespace FlightApp.Query.Processing.Execution
                 ? true
                 : ConditionEvaluator.Evaluate((operation, name, constantNode) => Compare(source, operation, name, constantNode));
 
-        public bool Update(IAirportUpdateDecorator source) => true;
+        public bool Update(IAirportUpdateDecorator source)
+        {
+            if (QueryData.Values is null)
+            {
+                return true;
+            }
+
+            if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
+                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+            {
+                QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
+            }
+
+            source.ProcessQueryUpdate(QueryData.Values);
+
+
+            return true;
+        }
 
         public bool Delete(IAirportUpdateDecorator source) => QueryRepository.Delete(source);
 
@@ -48,25 +64,8 @@ namespace FlightApp.Query.Processing.Execution
                 throw new QueryProcessingException("query values not set");
             }
 
-            var newAirport = new CreateRecordAirport();
-            foreach (var setValue in QueryData.Values)
-            {
-                if (addLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
-                {
-                    try
-                    {
-                        setFunc(newAirport, setValue.Value);
-                    }
-                    catch (Exception ex)
-                    { 
-                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
-                    }
-                }
-                else
-                {
-                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
-                }
-            }
+            var newAirport = new AirportUpdateDecorator(new CreateRecordAirport());
+            newAirport.ProcessQueryUpdate(QueryData.Values);
 
             QueryRepository.Add(newAirport);
 
@@ -77,18 +76,6 @@ namespace FlightApp.Query.Processing.Execution
             compareLibLazy.Value.TryGetValue(identifierName, out var compare)
                 ? compare(airport, operation, constantNode)
                 : throw new QueryProcessingException($"{identifierName} is ivalid for {nameof(QuerySyntax.Airport)}");
-
-        private static Dictionary<string, Action<CreateRecordAirport, string>> CreateAddDictionary() =>
-            new ()
-            {
-                {QuerySyntax.Airport.IdField, (airport, value) => airport.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Airport.AmslField, (airport, value) => airport.AMSL = float.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Airport.CodeField, (airport, value) => airport.Code = value },
-                {QuerySyntax.Airport.CountryCodeField, (airport, value) => airport.Country = value },
-                {QuerySyntax.Airport.NameField, (airport, value) => airport.Name = value },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
-            };
 
         private static Dictionary<string, Func<IAirportUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>> CreateCompareDictionary() =>
             new ()

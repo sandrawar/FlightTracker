@@ -1,4 +1,5 @@
-﻿using FlightApp;
+﻿using Avalonia.Input.TextInput;
+using FlightApp;
 using FlightApp.Command;
 using FlightApp.DataProcessor;
 using FlightTrackerGUI;
@@ -31,7 +32,7 @@ internal class FlightAppLogic: IDisposable
 	private void MapRefresh(object? state)
 	{
 		var sourceFlights = appData.GetFlights();
-		var sourceAirports = appData.GetAirports().ToDictionary(c => c.Id, c => c);
+		var sourceAirports = GetDictSafe(appData.GetAirports());
 		List<FlightGUI> flights = new List<FlightGUI>();
 
 		foreach (var flightMapInfo in sourceFlights.Select(f => GetFlightMapInfo(f, sourceAirports)))
@@ -46,6 +47,16 @@ internal class FlightAppLogic: IDisposable
 		var flightsGUIData = new FlightsGUIData(flights);
 		Runner.UpdateGUI(flightsGUIData);
 	}
+
+	private static IReadOnlyDictionary<ulong, IAirport> GetDictSafe(IEnumerable<IAirport> airports)
+	{
+		var dict = new Dictionary<ulong, IAirport>();
+		foreach (var airport in airports)
+		{
+			dict[airport.Id] = airport;
+		}
+		return dict;
+    }
 
 	private (IFlight flight, bool isLive, WorldPosition position, double rotation) GetFlightMapInfo(IFlight flight, IReadOnlyDictionary<ulong, IAirport> airports)
 	{

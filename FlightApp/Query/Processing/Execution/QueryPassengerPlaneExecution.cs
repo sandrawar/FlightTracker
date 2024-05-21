@@ -21,7 +21,22 @@ namespace FlightApp.Query.Processing.Execution
                 ? true
                 : ConditionEvaluator.Evaluate((operation, name, constantNode) => Compare(source, operation, name, constantNode));
 
-        public bool Update(IPassengerPlaneUpdateDecorator source) => true;
+        public bool Update(IPassengerPlaneUpdateDecorator source)
+        {
+            if (QueryData.Values is null)
+            {
+                return true;
+            }
+
+            if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
+                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+            {
+                QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
+            }
+
+            return true;
+        }
+
 
         public bool Delete(IPassengerPlaneUpdateDecorator source) => QueryRepository.Delete(source);
 

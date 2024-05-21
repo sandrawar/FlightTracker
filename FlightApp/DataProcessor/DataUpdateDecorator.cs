@@ -1,5 +1,8 @@
 ﻿
 using FlightApp.Logger;
+using FlightApp.Query;
+using FlightApp.Query.Processing.Execution;
+using System.Globalization;
 
 namespace FlightApp.DataProcessor
 {
@@ -35,6 +38,7 @@ namespace FlightApp.DataProcessor
 
     internal interface IAirportUpdateDecorator : IFlightAppObjectUpdateDecorator, IAirport
     {
+        public void ProcessQueryUpdate(IDictionary<string, string> updateData);
     }
 
     internal interface IFlightUpdateDecorator : IFlightAppObjectUpdateDecorator, IFlight
@@ -56,15 +60,18 @@ namespace FlightApp.DataProcessor
 
         public string ClassType => Decorated.ClassType;
 
-        public ulong Id { get => idUpdated ?? Decorated.Id; }
+        public ulong Id 
+        {
+            get => idUpdated ?? Decorated.Id;
+            set => idUpdated = value;
+        }
 
         public virtual void UpdateData(IDUpdateData updateData, ILogger logger)
         {
             if (updateData.ObjectID == Id)
             {
                 logger.LogData($"Updating id: {Id} => {updateData.NewObjectID}");
-
-                idUpdated = updateData.NewObjectID;
+                Id = updateData.NewObjectID;
             }
         }
     }
@@ -174,21 +181,90 @@ namespace FlightApp.DataProcessor
 
     internal sealed class AirportUpdateDecorator : FlightAppObjectUpdateDecorator<IAirport>, IAirportUpdateDecorator
     {
+        private static readonly Lazy<IDictionary<string, Action<AirportUpdateDecorator, string>>> updateLibLazy = new(CreateUpdateDictionary);
+
+        private float? AMSLUpdated;
+        private string? CodeUpdated;
+        private string? CountryUpdated;
+        private float? LatitudeUpdated;
+        private float? LongitudeUpdated;
+        private string? NameUpdated;
+
         public AirportUpdateDecorator(IAirport airport) : base(airport)
         {
         }
 
-        public float AMSL => Decorated.AMSL;
+        public void ProcessQueryUpdate(IDictionary<string, string> updateData)
+        {
+            foreach (var setValue in updateData)
+            {
+                if (updateLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
+                {
+                    try
+                    {
+                        setFunc(this, setValue.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
+                    }
+                }
+                else
+                {
+                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
+                }
+            }
 
-        public string Code => Decorated.Code;
+        }
 
-        public string Country => Decorated.Country;
+        public float AMSL
+        {
+            get => AMSLUpdated ?? Decorated.AMSL;
+            set => AMSLUpdated = value;
+        }
 
-        public float Latitude => Decorated.Latitude;
+        public string Code
+        {
+            get => CodeUpdated ?? Decorated.Code;
+            set => CodeUpdated = value;
+        }
 
-        public float Longitude => Decorated.Longitude;
+        public string Country
+        {
+            get => CountryUpdated ?? Decorated.Country;
+            set => CountryUpdated = value;
+        }
 
-        public string Name => Decorated.Name;
+        public float Latitude
+        {
+            get => LatitudeUpdated ?? Decorated.Latitude;
+            set => LatitudeUpdated = value;
+        }
+
+        public float Longitude
+        {
+            get => LongitudeUpdated ?? Decorated.Longitude;
+            set => LongitudeUpdated = value;
+        }
+
+        public string Name
+        {
+            get => NameUpdated ?? Decorated.Name;
+            set => NameUpdated = value;
+        }
+
+        private static Dictionary<string, Action<AirportUpdateDecorator, string>> CreateUpdateDictionary() =>
+            new()
+            {
+                {QuerySyntax.Airport.IdField, (airport, value) => airport.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.AmslField, (airport, value) => airport.AMSL = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.CodeField, (airport, value) => airport.Code = value },
+                {QuerySyntax.Airport.CountryCodeField, (airport, value) => airport.Country = value },
+                {QuerySyntax.Airport.NameField, (airport, value) => airport.Name = value },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+            };
+
     }
 
     internal sealed class FlightUpdateDecorator : FlightAppObjectUpdateDecorator<IFlight>, IFlightUpdateDecorator
