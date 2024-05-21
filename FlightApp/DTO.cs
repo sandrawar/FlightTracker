@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace FlightApp;
+﻿namespace FlightApp;
 
 internal abstract class FlightAppObject : IFlightAppObject
 {
@@ -49,9 +47,9 @@ internal class Crew : Person, ICrew
     public string Role { get; }
 }
 
-internal class Passanger : Person, IPassanger
+internal class Passenger : Person, IPassenger
 {
-    public Passanger(ulong id, string name, ulong age, string phone, string email, string @class, ulong miles)
+    public Passenger(ulong id, string name, ulong age, string phone, string email, string @class, ulong miles)
         : base("P", id, name, age, phone, email)
 
     {
@@ -109,19 +107,19 @@ internal class CargoPlane : Plane, ICargoPlane
     public float MaxLoad { get; }
 }
 
-internal class PassangerPlane : Plane, IPassangerPlane
+internal class PassengerPlane : Plane, IPassengerPlane
 {
-    public PassangerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize)
+    public PassengerPlane(ulong id, string serial, string country, string model, ushort firstClassSize, ushort buisnessClassSize, ushort economyClassSize)
         : base("PP", id, serial, country, model)
     {
         FirstClassSize = firstClassSize;
-        BuisnessClassSize = buisnessClassSize;
+        BusinessClassSize = buisnessClassSize;
         EconomyClassSize = economyClassSize;
     }
 
     public ushort FirstClassSize { get; }
 
-    public ushort BuisnessClassSize { get; }
+    public ushort BusinessClassSize { get; }
 
     public ushort EconomyClassSize { get; }
 }

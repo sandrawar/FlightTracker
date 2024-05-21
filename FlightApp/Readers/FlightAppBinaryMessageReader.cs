@@ -16,10 +16,10 @@ namespace FlightApp.Readers
             readers = new Dictionary<string, IFlightAppBinaryMessageReader>()
             {
                  {"NCR", new CrewBinaryMessagReader() },
-                 {"NPA", new PassangerBinaryMessagReader() },
+                 {"NPA", new PassengerBinaryMessagReader() },
                  {"NCA", new CargoBinaryMessagReader() },
                  {"NCP", new CargoPlaneBinaryMessagReader() },
-                 {"NPP", new PassangerPlaneBinaryMessagReader() },
+                 {"NPP", new PassengerPlaneBinaryMessagReader() },
                  {"NAI", new AirportBinaryMessagReader() },
                  {"NFL", new FlightBinaryMessagReader() }
             };
@@ -63,14 +63,14 @@ namespace FlightApp.Readers
         }
     }
 
-    internal class PassangerBinaryMessagReader : IFlightAppBinaryMessageReader
+    internal class PassengerBinaryMessagReader : IFlightAppBinaryMessageReader
     {
         public void AddToFlightAppDataUpdate(byte[] data, IFlightAppDataUpdate flightAppDataUpdate)
         {
             var nameLength = BitConverter.ToUInt16(data, 15);
             var emailLength = BitConverter.ToUInt16(data, 31 + nameLength);
 
-            flightAppDataUpdate.Add(new Passanger(
+            flightAppDataUpdate.Add(new Passenger(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 17, nameLength),
                 BitConverter.ToUInt16(data, 17 + nameLength),
@@ -110,13 +110,13 @@ namespace FlightApp.Readers
         }
     }
 
-    internal class PassangerPlaneBinaryMessagReader : IFlightAppBinaryMessageReader
+    internal class PassengerPlaneBinaryMessagReader : IFlightAppBinaryMessageReader
     {
         public void AddToFlightAppDataUpdate(byte[] data, IFlightAppDataUpdate flightAppDataUpdate)
         {
             var modelLength = BitConverter.ToUInt16(data, 28);
 
-            flightAppDataUpdate.Add(new PassangerPlane(
+            flightAppDataUpdate.Add(new PassengerPlane(
                 BitConverter.ToUInt64(data, 7),
                 Encoding.ASCII.GetString(data, 15, 10).TrimEnd('\0'),
                 Encoding.ASCII.GetString(data, 25, 3),

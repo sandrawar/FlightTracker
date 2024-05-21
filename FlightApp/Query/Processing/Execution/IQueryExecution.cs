@@ -1,10 +1,8 @@
-﻿using FlightApp.DataProcessor;
-
-namespace FlightApp.Query.Processing.Execution
+﻿namespace FlightApp.Query.Processing.Execution
 {
     internal interface IQueryExecution<TObjectClass>
     {
-        IEnumerable<TObjectClass> SelectSource(IFlightAppDataQueryRepository flightAppData);
+        IEnumerable<TObjectClass> SelectSource();
 
         bool IsConditionMet(TObjectClass source);
 

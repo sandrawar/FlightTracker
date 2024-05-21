@@ -28,11 +28,11 @@ namespace FlightApp.Command.Operation
                 [
                 .. Data.GetAirports().Select(a => new AirportReportableDecorator(a)),
                 .. Data.GetCargoPlanes().Select(cp => new CargoPlaneReportableDecorator(cp)),
-                .. Data.GetPassangerPlanes().Select(pp => new PassangerPlaneReportableDecorator(pp)),
+                .. Data.GetPassengerPlanes().Select(pp => new PassengerPlaneReportableDecorator(pp)),
             ]);
 
 
-            return new CommandResult(GenerateNews(generator));
+            return new CommandResult(GenerateNews(generator).ToArray());
         }
 
         private IEnumerable<string> GenerateNews(NewsGenerator generator)

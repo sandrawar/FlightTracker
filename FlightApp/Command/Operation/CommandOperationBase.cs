@@ -30,9 +30,9 @@ namespace FlightApp.Command.Operation
 
     internal class CommandChainTermination : IFlighAppCommand
     {
-        private readonly IEnumerable<string> messages;
+        private readonly IReadOnlyCollection<string> messages;
 
-        public CommandChainTermination(IEnumerable<string> resultMessages)
+        public CommandChainTermination(IReadOnlyCollection<string> resultMessages)
         {
             messages = resultMessages;
         }

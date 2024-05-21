@@ -18,7 +18,9 @@ namespace FlightApp
             var columnSizes = queryTable.Columns.ToDictionary(
                 c => c.ColumnName,
                 c => Math.Max(
-                        queryTable.Rows.Max(r => r.Cells.TryGetValue(c.ColumnName, out var cellData) ? cellData.Length : 0),
+                        queryTable.Rows.Count > 0 
+                            ? queryTable.Rows.Max(r => r.Cells.TryGetValue(c.ColumnName, out var cellData) ? cellData?.Length ?? 0 : 0)
+                            : 0,
                         c.ColumnName.Length)
                 );
 
@@ -89,7 +91,7 @@ namespace FlightApp
                     {
                         cellData = string.Empty;
                     }
-                    Console.Write(cellData.PadLeft(columnSizes[column.ColumnName]));
+                    Console.Write((cellData ?? string.Empty).PadLeft(columnSizes[column.ColumnName]));
                 }
                 Console.WriteLine();
             }

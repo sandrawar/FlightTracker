@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using FlightApp.Query.Condition;
+using System.Text.RegularExpressions;
 
 namespace FlightApp.Query
 {
@@ -17,67 +18,88 @@ namespace FlightApp.Query
             public const string Display = "display";
             public const string Update = "update";
         }
-        private static class QueryObjectClassName
+        private static class QueryGroupNames
         {
-            public const string Airport = "Airport";
-            public const string Flight = "Flight";
-            public const string PassengerPlane = "PassengerPlane";
-            public const string CargoPlane = "CargoPlane";
-            public const string Cargo = "Cargo";
-            public const string Passenger = "Passenger";
-            public const string Crew = "Crew";
+            public const string Operation = "operation";
+            public const string Class = "class";
+            public const string Conditions = "conditions";
+            public const string Values = "values";
+            public const string Fields = "fields";
         }
+        private static class RegexPatterns
+        {
+            private const string patternOpAdd = $"(?<{QueryGroupNames.Operation}>^{QueryOperationName.Add})";
+            private const string patternOpDelete = $"(?<{QueryGroupNames.Operation}>^{QueryOperationName.Delete})";
+            private const string patternOpDisplay = $"(?<{QueryGroupNames.Operation}>^{QueryOperationName.Display})";
+            private const string patternOpUpdate = $"(?<{QueryGroupNames.Operation}>^{QueryOperationName.Update})";
+            private const string patternClass = @$"\s+(?<{QueryGroupNames.Class}>" +
+                $"{QuerySyntax.Flight.ClassName}" +
+                $"|{QuerySyntax.Airport.ClassName}" +
+                $"|{QuerySyntax.PassengerPlane.ClassName}" +
+                $"|{QuerySyntax.CargoPlane.ClassName}" +
+                $"|{QuerySyntax.Cargo.ClassName}" +
+                $"|{QuerySyntax.Passenger.ClassName}" +
+                $"|{QuerySyntax.Crew.ClassName})";
+            private const string patternConditions = @$"(\s+where\s+(?<{QueryGroupNames.Conditions}>.+))?";
+            private const string patternValues = @$"\s+\((?<{QueryGroupNames.Values}>.+)\)";
+            private const string patternFields = @$"\s+(?<{QueryGroupNames.Fields}>\*|[\w\.,\s+]+)";
 
-        private const string regexOpAdd = $"(?<operation>^{QueryOperationName.Add})";
-        private const string regexOpDelete = $"(?<operation>^{QueryOperationName.Delete})";
-        private const string regexOpDisplay = $"(?<operation>^{QueryOperationName.Display})";
-        private const string regexOpUpdate = $"(?<operation>^{QueryOperationName.Update})";
-        private const string regexClass = @"\s+(?<class>" +
-            $"{QueryObjectClassName.Flight}" +
-            $"|{QueryObjectClassName.Airport}" +
-            $"|{QueryObjectClassName.PassengerPlane}" +
-            $"|{QueryObjectClassName.CargoPlane}" +
-            $"|{QueryObjectClassName.Cargo}" +
-            $"|{QueryObjectClassName.Passenger}" +
-            $"|{QueryObjectClassName.Crew})";
-        private const string regexConditions = @"(\s+where\s+(?<conditions>.+))?";
-        private const string regexValues = @"\s+\((?<values>.+)\)";
-        private const string regexFields = @"\s+(?<fields>\*|[\w,\s+]+)";
+            public const string PatternCommand = @$"{patternOpAdd}\s+.*$" +
+                    @$"|{patternOpDelete}\s+.*$" +
+                    @$"|{patternOpDisplay}\s+.*$" +
+                    @$"|{patternOpUpdate}\s+.*$";
 
-        private const string regexFieldSplit = @",\s*";
-        private Regex commandRegex;
-        private Regex queryRegex;
-        private Regex fieldSplitRegex;
+            public const string PatternQuery = @$"{patternOpAdd}{patternClass}\s+new{patternValues}\s*$" +
+                @$"|{patternOpDelete}{patternClass}{patternConditions}\s*$" +
+                @$"|{patternOpDisplay}{patternFields}\s+from{patternClass}{patternConditions}\s*$" +
+                @$"|{patternOpUpdate}{patternClass}\s+set{patternValues}{patternConditions}\s*$";
+
+            public const string PatternFieldSplit = @",\s*";
+        }
+        
+        private Regex regexCommand;
+        private Regex regexQuery;
+        private Regex regexFieldSplit;
 
         public FlightAppQueryParser()
         {
-            commandRegex = new Regex(@$"{regexOpAdd}\s+.*$" +
-                @$"|{regexOpDelete}\s+.*$" +
-                @$"|{regexOpDisplay}\s+.*$" +
-                @$"|{regexOpUpdate}\s+.*$",
-                RegexOptions.Compiled | RegexOptions.Multiline);
-
-            queryRegex = new Regex(@$"{regexOpAdd}{regexClass}\s+new{regexValues}\s*$" +
-                @$"|{regexOpDelete}{regexClass}{regexConditions}\s*$" +
-                @$"|{regexOpDisplay}{regexFields}\s+from{regexClass}{regexConditions}\s*$" +
-                @$"|{regexOpUpdate}{regexClass}\s+set{regexValues}{regexConditions}\s*$",
-                RegexOptions.Compiled | RegexOptions.Multiline);
-
-            fieldSplitRegex = new Regex(regexFieldSplit, RegexOptions.Compiled);
+            regexCommand = new Regex(RegexPatterns.PatternCommand, RegexOptions.Compiled);
+            regexQuery = new Regex(RegexPatterns.PatternQuery, RegexOptions.Compiled);
+            regexFieldSplit = new Regex(RegexPatterns.PatternFieldSplit, RegexOptions.Compiled);
         }
 
         public bool IsQueryCommand(string command)
-            => commandRegex.IsMatch(command);
+            => regexCommand.IsMatch(command);
 
         public FlighAppQueryData? Parse(string command)
         {
-            var commandMatch = queryRegex.Match(command);
-            if (!commandMatch.Success)
+            if (!TryMatchCommand(command, out var commandMatch)
+                || !TryParseQueryOperation(commandMatch, out var queryOperation)
+                || !TryParseQueryObjectClass(commandMatch, out var queryObjectClass)
+                || !TryParseConditions(commandMatch, out var conditions)
+                || !TryParseValues(commandMatch, out var values))
             {
                 return null;
             }
 
-            QueryOperation? queryOperation = commandMatch.Groups["operation"].Value switch
+            return new FlighAppQueryData(
+                queryOperation,
+                queryObjectClass,
+                conditions,
+                values,
+                ParseFields(commandMatch)
+            );
+        }
+
+        private bool TryMatchCommand(string command, out Match commandMatch)
+        {
+            commandMatch = regexQuery.Match(command);
+            return commandMatch.Success;
+        }
+
+        private static bool TryParseQueryOperation(Match commandMatch, out QueryOperation queryOperation)
+        {
+            QueryOperation? parsedQueryOperation = commandMatch.Groups[QueryGroupNames.Operation].Value switch
             {
                 QueryOperationName.Add => QueryOperation.Add,
                 QueryOperationName.Delete => QueryOperation.Delete,
@@ -85,39 +107,85 @@ namespace FlightApp.Query
                 QueryOperationName.Update => QueryOperation.Update,
                 _ => null
             };
-            if (!queryOperation.HasValue)
-            {
-                return null;
-            }
+            queryOperation = parsedQueryOperation ?? QueryOperation.Add;
+            return parsedQueryOperation.HasValue;
+        }
 
-            QueryObjectClass? queryObjectClass = commandMatch.Groups["class"].Value switch
+        private static bool TryParseQueryObjectClass(Match commandMatch, out QueryObjectClass queryObjectClass)
+        {
+            QueryObjectClass? parsedQueryObjectClass = commandMatch.Groups[QueryGroupNames.Class].Value switch
             {
-                QueryObjectClassName.Airport => QueryObjectClass.Airport,
-                QueryObjectClassName.Flight => QueryObjectClass.Flight,
-                QueryObjectClassName.PassengerPlane => QueryObjectClass.PassengerPlane,
-                QueryObjectClassName.CargoPlane => QueryObjectClass.CargoPlane,
-                QueryObjectClassName.Cargo => QueryObjectClass.Cargo,
-                QueryObjectClassName.Passenger => QueryObjectClass.Passenger,
-                QueryObjectClassName.Crew => QueryObjectClass.Crew,
+                QuerySyntax.Airport.ClassName => QueryObjectClass.Airport,
+                QuerySyntax.Flight.ClassName => QueryObjectClass.Flight,
+                QuerySyntax.PassengerPlane.ClassName => QueryObjectClass.PassengerPlane,
+                QuerySyntax.CargoPlane.ClassName => QueryObjectClass.CargoPlane,
+                QuerySyntax.Cargo.ClassName => QueryObjectClass.Cargo,
+                QuerySyntax.Passenger.ClassName => QueryObjectClass.Passenger,
+                QuerySyntax.Crew.ClassName => QueryObjectClass.Crew,
                 _ => null
             };
-            if (!queryObjectClass.HasValue)
+            queryObjectClass = parsedQueryObjectClass ?? QueryObjectClass.Airport;
+            return parsedQueryObjectClass.HasValue;
+        }
+
+        private string[]? ParseFields(Match commandMatch)
+        {
+            var fields = commandMatch.Groups[QueryGroupNames.Fields]?.Value;
+            var fieldlist = fields is not null
+                ? regexFieldSplit.Split(fields)
+                : null;
+            return fieldlist;
+        }
+
+        private static bool TryParseConditions(Match commandMatch, out IList<ConditionToken>? conditionTokens)
+        {
+            var conditions = commandMatch.Groups[QueryGroupNames.Conditions]?.Value;
+            
+            if (string.IsNullOrEmpty(conditions))
             {
-                return null;
+                conditionTokens = null;
+                return true;
             }
 
-            var fields = commandMatch.Groups["fields"]?.Value;
-            var fieldlist = fields is not null
-                ? fieldSplitRegex.Split(fields)
-                : null;
+            try
+            {
+                conditionTokens = ConditionTokenizer.Tokenize(conditions);
+                return true;
+            }
+            catch (QueryProcessingException)
+            {
+                conditionTokens = null;
+                return false;
+            }
+        }
 
-            return new FlighAppQueryData(
-                queryOperation.Value,
-                queryObjectClass.Value,
-                commandMatch.Groups["conditions"]?.Value,
-                commandMatch.Groups["values"]?.Value,
-                fieldlist
-            );
+        private static bool TryParseValues(Match commandMatch, out IDictionary<string, string>? values)
+        {
+            var rawValues = commandMatch.Groups[QueryGroupNames.Values]?.Value;
+            
+            if (string.IsNullOrEmpty(rawValues))
+            {
+                values = null;
+                return true;
+            }
+
+            try
+            {
+                var pairlist = rawValues.Split(',');
+                var setters = pairlist.Select(p => p.Split('='));
+                if (setters.Any(v => v.Length != 2))
+                {
+                   throw new QueryProcessingException("Error parsing values");
+                }
+
+                values = setters.ToDictionary(v => v[0].Trim(), v => v[1].Trim());
+                return true;
+            }
+            catch (Exception)
+            {
+                values = null;
+                return false;
+            }
         }
     }
 }

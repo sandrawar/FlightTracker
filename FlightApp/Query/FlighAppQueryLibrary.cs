@@ -11,16 +11,16 @@ namespace FlightApp.Query
     {
         private readonly IFlightAppQuery operation;
 
-        public FlighAppQueryLibrary(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlighAppQueryLibrary(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
             operation = new FlightAppQueryChain()
-                .AddAirport(flightAppQueryProcessor)
-                .AddCargo(flightAppQueryProcessor)
-                .AddCargoPlane(flightAppQueryProcessor)
-                .AddCrew(flightAppQueryProcessor)
-                .AddFlight(flightAppQueryProcessor)
-                .AddPassenger(flightAppQueryProcessor)
-                .AddPassengerPlane(flightAppQueryProcessor)
+                .AddAirport(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddCargo(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddCargoPlane(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddCrew(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddFlight(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddPassenger(flightAppDataQueryRepository, flightAppQueryProcessor)
+                .AddPassengerPlane(flightAppDataQueryRepository, flightAppQueryProcessor)
                 .Build();
         }
 

@@ -11,7 +11,7 @@
         {
             if (queryFields is null)
             {
-                throw new InvalidOperationException("query fields not set");
+                throw new QueryProcessingException("query fields not set");
             }
 
             var fieldsList = queryFields.Contains("*")

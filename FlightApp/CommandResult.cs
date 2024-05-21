@@ -1,22 +1,22 @@
 ﻿public class CommandResult
 {
-    public CommandResult(IEnumerable<string> messages)
+    public CommandResult(IReadOnlyCollection<string> messages)
     {
         Messages = messages;
         QueryTable = null;
     }
     public CommandResult(QueryTableResult? queryTable = null)
     {
-        Messages = Enumerable.Empty<string>();
+        Messages = [];
         QueryTable = queryTable;
     }
 
-    public IEnumerable<string> Messages { get; }
+    public IReadOnlyCollection<string> Messages { get; }
 
     public QueryTableResult? QueryTable { get; }
 }
 
-public record class QueryTableResult(IEnumerable<QueryTableColumn> Columns, IEnumerable<QueryTableRow> Rows);
+public record class QueryTableResult(IReadOnlyCollection<QueryTableColumn> Columns, IReadOnlyCollection<QueryTableRow> Rows);
 
 public record class QueryTableRow(IDictionary<string, string> Cells);
 

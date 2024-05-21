@@ -1,6 +1,5 @@
 ﻿
 using FlightApp.Logger;
-using NetworkSourceSimulator;
 
 namespace FlightApp.DataProcessor
 {
@@ -22,7 +21,7 @@ namespace FlightApp.DataProcessor
     {
     }
 
-    internal interface IPassangerUpdateDecorator : IPersonUpdateDecorator, IPassanger
+    internal interface IPassengerUpdateDecorator : IPersonUpdateDecorator, IPassenger
     {
     }
 
@@ -30,7 +29,7 @@ namespace FlightApp.DataProcessor
     {
     }
 
-    internal interface IPassangerPlaneUpdateDecorator : IFlightAppObjectUpdateDecorator, IPassangerPlane
+    internal interface IPassengerPlaneUpdateDecorator : IFlightAppObjectUpdateDecorator, IPassengerPlane
     {
     }
 
@@ -126,9 +125,9 @@ namespace FlightApp.DataProcessor
         public string Role => Decorated.Role;
     }
 
-    internal sealed class PassangerUpdateDecorator : PersonUpdateDecorator<IPassanger>, IPassangerUpdateDecorator
+    internal sealed class PassengerUpdateDecorator : PersonUpdateDecorator<IPassenger>, IPassengerUpdateDecorator
     {
-        public PassangerUpdateDecorator(IPassanger passenger) : base(passenger)
+        public PassengerUpdateDecorator(IPassenger passenger) : base(passenger)
         {
         }
 
@@ -160,13 +159,13 @@ namespace FlightApp.DataProcessor
         public float MaxLoad => Decorated.MaxLoad;
     }
 
-    internal sealed class PassangerPlaneUpdateDecorator : PlaneUpdateDecorator<IPassangerPlane>, IPassangerPlaneUpdateDecorator
+    internal sealed class PassengerPlaneUpdateDecorator : PlaneUpdateDecorator<IPassengerPlane>, IPassengerPlaneUpdateDecorator
     {
-        public PassangerPlaneUpdateDecorator(IPassangerPlane passangerPlane) : base(passangerPlane)
+        public PassengerPlaneUpdateDecorator(IPassengerPlane passengerPlane) : base(passengerPlane)
         {
         }
 
-        public ushort BuisnessClassSize => Decorated.BuisnessClassSize;
+        public ushort BusinessClassSize => Decorated.BusinessClassSize;
 
         public ushort EconomyClassSize => Decorated.EconomyClassSize;
 

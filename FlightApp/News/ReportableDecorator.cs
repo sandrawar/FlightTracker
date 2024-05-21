@@ -22,15 +22,15 @@ namespace FlightApp.News
             => newsReporter.Report(airport);
     }
 
-    internal class PassangerPlaneReportableDecorator : ReportableDecorator
+    internal class PassengerPlaneReportableDecorator : ReportableDecorator
     {
-        private readonly IPassangerPlane passangerPlane;
+        private readonly IPassengerPlane passengerPlane;
 
-        public PassangerPlaneReportableDecorator(IPassangerPlane passangerPlane)
-            => this.passangerPlane = passangerPlane;
+        public PassengerPlaneReportableDecorator(IPassengerPlane passengerPlane)
+            => this.passengerPlane = passengerPlane;
 
         public override string Report(INewsReporter newsReporter)
-            => newsReporter.Report(passangerPlane);
+            => newsReporter.Report(passengerPlane);
     }
 
     internal class CargoPlaneReportableDecorator : ReportableDecorator

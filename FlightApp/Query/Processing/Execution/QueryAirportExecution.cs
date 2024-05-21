@@ -1,53 +1,118 @@
 ﻿using FlightApp.DataProcessor;
+using FlightApp.Query.Condition;
 using System.Globalization;
 
 namespace FlightApp.Query.Processing.Execution
 {
-    internal class QueryAirportExecution : IQueryExecution<IAirportUpdateDecorator>
+    internal class QueryAirportExecution : QueryExecutionBase, IQueryExecution<IAirportUpdateDecorator>
     {
-        private readonly FlighAppQueryData queryData;
+        private static readonly Lazy<IDictionary<string, Func<IAirportUpdateDecorator, string>>> sourceReadLazy = new (CreateSourceReadDictionary);
+        private static readonly Lazy<IDictionary<string, Func<IAirportUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>>> compareLibLazy = new (CreateCompareDictionary);
+        private static readonly Lazy<IDictionary<string, Action<CreateRecordAirport, string>>> addLibLazy = new (CreateAddDictionary);
 
-        private static readonly Lazy<IDictionary<string, Func<IAirportUpdateDecorator, string>>> sourceReadLazy = 
-            new Lazy<IDictionary<string, Func<IAirportUpdateDecorator, string>>>(() =>
-            new Dictionary<string, Func<IAirportUpdateDecorator, string>>()
-            {
-                 {QuerySyntax.Airport.IdField, airport => airport.Id.ToString(CultureInfo.InvariantCulture) },
-                 {QuerySyntax.Airport.AmslField, airport => airport.AMSL.ToString() },
-                 {QuerySyntax.Airport.CodeField, airport => airport.Code },
-                 {QuerySyntax.Airport.CountryCodeField, airport => airport.Country },
-                 {QuerySyntax.Airport.NameField, airport => airport.Name },
-                 {QuerySyntax.Airport.WorldPositionField, airport => $"{{{airport.Latitude}, {airport.Longitude}}}" },
-            });
-
-        public QueryAirportExecution(FlighAppQueryData flighAppQueryData)
+        public QueryAirportExecution(IFlightAppDataQueryRepository flightAppDataQueryRepository, FlighAppQueryData flighAppQueryData): base(flightAppDataQueryRepository, flighAppQueryData)
         {
-            queryData = flighAppQueryData;
         }
 
-        public IEnumerable<IAirportUpdateDecorator> SelectSource(IFlightAppDataQueryRepository flightAppData) => flightAppData.GetAirportsUpdate();
+        public IEnumerable<IAirportUpdateDecorator> SelectSource() => QueryRepository.GetAirportsUpdate();
 
-        public bool IsConditionMet(IAirportUpdateDecorator source) => true;
+        public bool IsConditionMet(IAirportUpdateDecorator source) => 
+            QueryData.Conditions is null
+                ? true
+                : ConditionEvaluator.Evaluate((operation, name, constantNode) => Compare(source, operation, name, constantNode));
 
         public bool Update(IAirportUpdateDecorator source) => true;
 
-        public bool Delete(IAirportUpdateDecorator source) => true;
+        public bool Delete(IAirportUpdateDecorator source) => QueryRepository.Delete(source);
 
         public CommandResult PrepareDisplayTable(IEnumerable<IAirportUpdateDecorator> source)
         {
-            if (queryData.Fields is null)
+            if (QueryData.Fields is null)
             {
-                throw new InvalidOperationException("query fields not set");
+                throw new QueryProcessingException("query fields not set");
             }
 
             var table = QueryTableResultBuilder.BuildTable(
-                queryData.Fields,
-                QuerySyntax.Airport.Fields,
+                QueryData.Fields,
+                QuerySyntax.Airport.CoreFields,
                 source,
                 sourceReadLazy.Value);
 
             return new CommandResult(table);
         }
 
-        public CommandResult Add() => new CommandResult(["Airport added"]);
+        public CommandResult Add()
+        {
+            if (QueryData.Values is null)
+            {
+                throw new QueryProcessingException("query values not set");
+            }
+
+            var newAirport = new CreateRecordAirport();
+            foreach (var setValue in QueryData.Values)
+            {
+                if (addLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
+                {
+                    try
+                    {
+                        setFunc(newAirport, setValue.Value);
+                    }
+                    catch (Exception ex)
+                    { 
+                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
+                    }
+                }
+                else
+                {
+                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
+                }
+            }
+
+            QueryRepository.Add(newAirport);
+
+            return new CommandResult(["Airport added"]);
+        } 
+
+        private static bool Compare(IAirportUpdateDecorator airport, ConditionCompareOperation operation, string identifierName, IConstantNode constantNode) =>
+            compareLibLazy.Value.TryGetValue(identifierName, out var compare)
+                ? compare(airport, operation, constantNode)
+                : throw new QueryProcessingException($"{identifierName} is ivalid for {nameof(QuerySyntax.Airport)}");
+
+        private static Dictionary<string, Action<CreateRecordAirport, string>> CreateAddDictionary() =>
+            new ()
+            {
+                {QuerySyntax.Airport.IdField, (airport, value) => airport.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.AmslField, (airport, value) => airport.AMSL = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.CodeField, (airport, value) => airport.Code = value },
+                {QuerySyntax.Airport.CountryCodeField, (airport, value) => airport.Country = value },
+                {QuerySyntax.Airport.NameField, (airport, value) => airport.Name = value },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+            };
+
+        private static Dictionary<string, Func<IAirportUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>> CreateCompareDictionary() =>
+            new ()
+            {
+                {QuerySyntax.Airport.IdField, (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Id, operation, constantNode) },
+                {QuerySyntax.Airport.AmslField, (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.AMSL, operation, constantNode) },
+                {QuerySyntax.Airport.CodeField, (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Code, operation, constantNode) },
+                {QuerySyntax.Airport.CountryCodeField, (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Country, operation, constantNode) },
+                {QuerySyntax.Airport.NameField, (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Name, operation, constantNode) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Longitude, operation, constantNode) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, operation, constantNode) => ConditionComparerHelper.Compare(airport.Longitude, operation, constantNode) },
+            };
+
+        private static Dictionary<string, Func<IAirportUpdateDecorator, string>> CreateSourceReadDictionary() =>
+            new ()
+            {
+                {QuerySyntax.Airport.IdField, airport => airport.Id.ToString(CultureInfo.InvariantCulture) },
+                {QuerySyntax.Airport.AmslField, airport => airport.AMSL.ToString() },
+                {QuerySyntax.Airport.CodeField, airport => airport.Code },
+                {QuerySyntax.Airport.CountryCodeField, airport => airport.Country },
+                {QuerySyntax.Airport.NameField, airport => airport.Name },
+                {QuerySyntax.Airport.WorldPositionField, airport => $"{{{airport.Latitude}, {airport.Longitude}}}" },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", airport => airport.Longitude.ToString(CultureInfo.CurrentUICulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", airport => airport.Longitude.ToString(CultureInfo.CurrentUICulture) },
+            };
     }
 }

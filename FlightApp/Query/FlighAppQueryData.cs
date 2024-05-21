@@ -1,4 +1,6 @@
-﻿namespace FlightApp.Query
+﻿using FlightApp.Query.Condition;
+
+namespace FlightApp.Query
 {
     internal enum QueryOperation
     {
@@ -22,8 +24,8 @@
     internal record class FlighAppQueryData(
         QueryOperation Operation, 
         QueryObjectClass ObjectClass, 
-        string? Conditions, 
-        string? Values, 
+        IList<ConditionToken>? Conditions, 
+        IDictionary<string, string>? Values, 
         string[]? Fields);
 }
 

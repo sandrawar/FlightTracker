@@ -14,7 +14,7 @@ internal class Program
         IFlightAppDataProcessor dataProcessor = new DataProcessorFactory().Create(args[0], args[1], flightAppCompleteData);
         IFlightAppQueryParser flightAppQueryParser = new FlightAppQueryParser();
         IFlightAppQueryProcessor flightAppQueryProcessor = new FlightAppQueryProcessor(flightAppCompleteData);
-        IFlighAppQueryLibrary flighAppQueryLibrary = new FlighAppQueryLibrary(flightAppQueryProcessor);
+        IFlighAppQueryLibrary flighAppQueryLibrary = new FlighAppQueryLibrary(flightAppCompleteData, flightAppQueryProcessor);
         IFlighAppCommandLibrary flighAppCommandLibrary = new FlighAppCommandLibrary(flightAppCompleteData, flightAppQueryParser, flighAppQueryLibrary);
 
         var logic = new FlightAppLogic(flightAppCompleteData, flighAppCommandLibrary);

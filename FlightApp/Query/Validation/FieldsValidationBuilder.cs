@@ -24,7 +24,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.Airport.Fields);
+            Validation.AddValidFields(QuerySyntax.Airport.AllFields);
         }
     }
 
@@ -32,7 +32,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.Cargo.Fields);
+            Validation.AddValidFields(QuerySyntax.Cargo.AllFields);
         }
     }
 
@@ -40,7 +40,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.CargoPlane.Fields);
+            Validation.AddValidFields(QuerySyntax.CargoPlane.AllFields);
         }
     }
 
@@ -48,7 +48,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.Crew.Fields);
+            Validation.AddValidFields(QuerySyntax.Crew.AllFields);
         }
     }
 
@@ -56,7 +56,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.Flight.Fields);
+            Validation.AddValidFields(QuerySyntax.Flight.AllFields);
         }
     }
 
@@ -64,7 +64,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.Passenger.Fields);
+            Validation.AddValidFields(QuerySyntax.Passenger.AllFields);
         }
     }
 
@@ -72,7 +72,7 @@
     {
         public override void AddOwnFields()
         {
-            Validation.AddValidFields(QuerySyntax.PassengerPlane.Fields);
+            Validation.AddValidFields(QuerySyntax.PassengerPlane.AllFields);
         }
     }
 }

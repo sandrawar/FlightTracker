@@ -1,4 +1,5 @@
 ﻿using FlightApp.Chain;
+using FlightApp.DataProcessor;
 using FlightApp.Query.Operation;
 using FlightApp.Query.Processing;
 
@@ -10,45 +11,45 @@ namespace FlightApp.Query
         {
         }
 
-        public FlightAppQueryChain AddAirport(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddAirport(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationAirport(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationAirport(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddCargo(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddCargo(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationCargo(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationCargo(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddCargoPlane(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddCargoPlane(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationCargoPlane(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationCargoPlane(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddCrew(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddCrew(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationCrew(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationCrew(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddFlight(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddFlight(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationFlight(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationFlight(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddPassenger(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddPassenger(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationPassenger(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationPassenger(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
 
-        public FlightAppQueryChain AddPassengerPlane(IFlightAppQueryProcessor flightAppQueryProcessor)
+        public FlightAppQueryChain AddPassengerPlane(IFlightAppDataQueryRepository flightAppDataQueryRepository, IFlightAppQueryProcessor flightAppQueryProcessor)
         {
-            AddLink(next => new QueryOperationPassengerPlane(flightAppQueryProcessor, next));
+            AddLink(next => new QueryOperationPassengerPlane(flightAppDataQueryRepository, flightAppQueryProcessor, next));
             return this;
         }
     }

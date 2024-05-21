@@ -4,10 +4,10 @@ namespace FlightApp
 {
     [JsonPolymorphic(UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
     [JsonDerivedType(typeof(ICrew))]
-    [JsonDerivedType(typeof(IPassanger))]
+    [JsonDerivedType(typeof(IPassenger))]
     [JsonDerivedType(typeof(ICargo))]
     [JsonDerivedType(typeof(ICargoPlane))]
-    [JsonDerivedType(typeof(IPassangerPlane))]
+    [JsonDerivedType(typeof(IPassengerPlane))]
     [JsonDerivedType(typeof(IAirport))]
     [JsonDerivedType(typeof(IFlight))]
     internal interface IFlightAppObject
@@ -30,7 +30,7 @@ namespace FlightApp
         string Role { get; }
     }
 
-    internal interface IPassanger: IPerson
+    internal interface IPassenger: IPerson
     {
         string Class { get; }
         ulong Miles { get; }
@@ -55,9 +55,9 @@ namespace FlightApp
         float MaxLoad { get; }
     }
 
-    internal interface IPassangerPlane: IPlane
+    internal interface IPassengerPlane: IPlane
     {
-        ushort BuisnessClassSize { get; }
+        ushort BusinessClassSize { get; }
         ushort EconomyClassSize { get; }
         ushort FirstClassSize { get; }
     }

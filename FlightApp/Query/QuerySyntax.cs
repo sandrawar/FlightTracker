@@ -2,15 +2,38 @@
 {
     internal static class QuerySyntax
     {
+        public static class WorldPosition
+        {
+            public const string ClassName = "WorldPosition";
+
+            public static string[] CoreFields = [
+                LatitudeField,
+                LongitudeField,
+            ];
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
+
+            public const string LatitudeField = "Lat";
+            public const string LongitudeField = "Long";
+        }
         public static class Airport
         {
-            public static string[] Fields = [
-                IdField, 
+            public const string ClassName = "Airport";
+
+            public static string[] CoreFields = [
+                IdField,
                 AmslField,
-                CodeField, 
-                CountryCodeField, 
+                CodeField,
+                CountryCodeField,
                 NameField,
-                WorldPositionField];
+                WorldPositionField,
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+                ..WorldPosition.AllFields.Select(w => $"{WorldPositionField}.{w}")
+            ];
 
             public const string IdField = "ID";
             public const string AmslField = "AMSL";
@@ -22,11 +45,18 @@
 
         public static class Cargo
         {
-            public static string[] Fields = [
-                IdField, 
-                CodeField, 
-                DescriptionField, 
-                WeightField];
+            public const string ClassName = "Cargo";
+
+            public static string[] CoreFields = [
+                IdField,
+                CodeField,
+                DescriptionField,
+                WeightField
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
 
             public const string IdField = "ID";
             public const string CodeField = "Code";
@@ -36,11 +66,18 @@
 
         public static class CargoPlane
         {
-            public static string[] Fields = [IdField, 
-                CountryCodeField, 
-                MaxLoadField, 
-                ModelField, 
-                SerialField];
+            public const string ClassName = "CargoPlane";
+
+            public static string[] CoreFields = [IdField,
+                CountryCodeField,
+                MaxLoadField,
+                ModelField,
+                SerialField
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
 
             public const string IdField = "ID";
             public const string CountryCodeField = "CountryCode";
@@ -51,14 +88,21 @@
 
         public static class Crew
         {
-            public static string[] Fields = [
-                IdField, 
-                AgeField, 
-                EmailField, 
-                NameField, 
-                PhoneField, 
-                PractiseField, 
-                RoleField];
+            public const string ClassName = "Crew";
+
+            public static string[] CoreFields = [
+                IdField,
+                AgeField,
+                EmailField,
+                NameField,
+                PhoneField,
+                PractiseField,
+                RoleField
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
 
             public const string IdField = "ID";
             public const string AgeField = "Age";
@@ -71,15 +115,23 @@
 
         public static class Flight
         {
-            public static string[] Fields = [
-                IdField, 
-                AmslField, 
-                LandingTimeField, 
-                OriginField, 
-                PlaneField, 
-                TakeofTimeField, 
+            public const string ClassName = "Flight";
+
+            public static string[] CoreFields = [
+                IdField,
+                AmslField,
+                LandingTimeField,
+                OriginField,
+                PlaneField,
+                TakeofTimeField,
                 TargetField,
-                WorldPositionField];
+                WorldPositionField,
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+                ..WorldPosition.AllFields.Select(w => $"{WorldPositionField}.{w}")
+                ];
 
             public const string IdField = "ID";
             public const string AmslField = "AMSL";
@@ -93,14 +145,21 @@
 
         public static class Passenger
         {
-            public static string[] Fields = [
-                IdField, 
-                AgeField, 
-                ClassField, 
-                EmailField, 
-                NameField, 
-                PhoneField, 
-                MilesField];
+            public const string ClassName = "Passenger";
+
+            public static string[] CoreFields = [
+                IdField,
+                AgeField,
+                ClassField,
+                EmailField,
+                NameField,
+                PhoneField,
+                MilesField
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
 
             public const string IdField = "ID";
             public const string AgeField = "Age";
@@ -113,13 +172,20 @@
 
         public static class PassengerPlane
         {
-            public static string[] Fields = [IdField, 
-                BusinessClassSizeField, 
-                CountryCodeField, 
-                EconomyClassSizeField, 
-                FirstClassSizeField, 
-                ModelField, 
-                SerialField];
+            public const string ClassName = "PassengerPlane";
+
+            public static string[] CoreFields = [IdField,
+                BusinessClassSizeField,
+                CountryCodeField,
+                EconomyClassSizeField,
+                FirstClassSizeField,
+                ModelField,
+                SerialField
+            ];
+
+            public static string[] AllFields = [
+                ..CoreFields,
+            ];
 
             public const string IdField = "ID";
             public const string BusinessClassSizeField = "BusinessClassSize";

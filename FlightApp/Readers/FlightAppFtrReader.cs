@@ -16,9 +16,9 @@ internal class FlightAppFtrReader : IFlightAppObjectFtrReader
         factories = new Dictionary<string, IFlightAppObjectFtrReader>()
          {
              {"C", new CrewFtrReader() },
-             {"P", new PassangerFtrReader() },
+             {"P", new PassengerFtrReader() },
              {"CA", new CargoFtrReader() },
-             {"PP", new PassangerPlaneFtrReader() },
+             {"PP", new PassengerPlaneFtrReader() },
              {"CP", new CargoPlaneFtrReader() },
              {"AI", new AirportFtrReader() },
              {"FL", new FlightFtrReader() }
@@ -66,7 +66,7 @@ internal class CrewFtrReader : IFlightAppObjectFtrReader
     }
 }
 
-internal class PassangerFtrReader : IFlightAppObjectFtrReader
+internal class PassengerFtrReader : IFlightAppObjectFtrReader
 {
     public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
@@ -75,7 +75,7 @@ internal class PassangerFtrReader : IFlightAppObjectFtrReader
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppDataUpdate.Add(new Passanger(
+        flightAppDataUpdate.Add(new Passenger(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             ulong.Parse(data[3], CultureInfo.InvariantCulture),
@@ -121,7 +121,7 @@ internal class CargoPlaneFtrReader : IFlightAppObjectFtrReader
     }
 }
 
-internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
+internal class PassengerPlaneFtrReader : IFlightAppObjectFtrReader
 {
     public void AddToFlightAppDataUpdate(string[] data, IFlightAppDataUpdate flightAppDataUpdate)
     {
@@ -130,7 +130,7 @@ internal class PassangerPlaneFtrReader : IFlightAppObjectFtrReader
             throw new ArgumentException(nameof(data));
         }
 
-        flightAppDataUpdate.Add(new PassangerPlane(
+        flightAppDataUpdate.Add(new PassengerPlane(
             ulong.Parse(data[1], CultureInfo.InvariantCulture),
             data[2],
             data[3],
