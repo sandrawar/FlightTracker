@@ -8,7 +8,6 @@ namespace FlightApp.Query.Processing.Execution
     {
         private static readonly Lazy<IDictionary<string, Func<ICrewUpdateDecorator, string>>> sourceReadLazy = new(CreateSourceReadDictionary);
         private static readonly Lazy<IDictionary<string, Func<ICrewUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>>> compareLibLazy = new(CreateCompareDictionary);
-        private static readonly Lazy<IDictionary<string, Action<CreateRecordCrew, string>>> addLibLazy = new (CreateAddDictionary);
 
         public QueryCrewExecution(IFlightAppDataQueryRepository flightAppDataQueryRepository, FlighAppQueryData flighAppQueryData) : base(flightAppDataQueryRepository, flighAppQueryData)
         {
@@ -33,6 +32,8 @@ namespace FlightApp.Query.Processing.Execution
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
+
+            source.ProcessQueryUpdate(QueryData.Values);
 
             return true;
         }
@@ -63,25 +64,8 @@ namespace FlightApp.Query.Processing.Execution
                 throw new QueryProcessingException("query values not set");
             }
 
-            var newCrew = new CreateRecordCrew();
-            foreach (var setValue in QueryData.Values)
-            {
-                if (addLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
-                {
-                    try
-                    {
-                        setFunc(newCrew, setValue.Value);
-                    }
-                    catch (Exception ex)
-                    { 
-                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
-                    }
-                }
-                else
-                {
-                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
-                }
-            }
+            var newCrew = new CrewUpdateDecorator(new CreateRecordCrew());
+            newCrew.ProcessQueryUpdate(QueryData.Values);
 
             QueryRepository.Add(newCrew);
 
@@ -92,18 +76,6 @@ namespace FlightApp.Query.Processing.Execution
             compareLibLazy.Value.TryGetValue(identifierName, out var compare)
                 ? compare(crew, operation, constantNode)
                 : throw new QueryProcessingException($"{identifierName} is ivalid for {nameof(QuerySyntax.Crew)}");
-
-        private static Dictionary<string, Action<CreateRecordCrew, string>> CreateAddDictionary() =>
-            new ()
-            {
-                {QuerySyntax.Crew.IdField, (crew, value) => crew.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Crew.AgeField, (crew, value) => crew.Age = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Crew.EmailField, (crew, value) => crew.Email = value },
-                {QuerySyntax.Crew.NameField, (crew, value) => crew.Name = value },
-                {QuerySyntax.Crew.PhoneField, (crew, value) => crew.Phone = value },
-                {QuerySyntax.Crew.PractiseField, (crew, value) => crew.Practice = ushort.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Crew.RoleField, (crew, value) => crew.Role = value },
-            };
 
         private static Dictionary<string, Func<ICrewUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>> CreateCompareDictionary() =>
             new()

@@ -1,5 +1,6 @@
 ﻿using FlightApp.DataProcessor;
 using FlightApp.Query.Condition;
+using SkiaSharp;
 using System.Globalization;
 
 namespace FlightApp.Query.Processing.Execution
@@ -8,7 +9,6 @@ namespace FlightApp.Query.Processing.Execution
     {
         private static readonly Lazy<IDictionary<string, Func<ICargoUpdateDecorator, string>>> sourceReadLazy = new (CreateSourceReadDictionary);
         private static readonly Lazy<IDictionary<string, Func<ICargoUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>>> compareLibLazy = new (CreateCompareDictionary);
-        private static readonly Lazy<IDictionary<string, Action<CreateRecordCargo, string>>> addLibLazy = new (CreateAddDictionary);
 
         public QueryCargoExecution(IFlightAppDataQueryRepository flightAppDataQueryRepository, FlighAppQueryData flighAppQueryData): base(flightAppDataQueryRepository, flighAppQueryData)
         {
@@ -33,6 +33,8 @@ namespace FlightApp.Query.Processing.Execution
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
+
+            source.ProcessQueryUpdate(QueryData.Values);
 
             return true;
         }
@@ -63,25 +65,8 @@ namespace FlightApp.Query.Processing.Execution
                 throw new QueryProcessingException("query values not set");
             }
 
-            var newCargo = new CreateRecordCargo();
-            foreach (var setValue in QueryData.Values)
-            {
-                if (addLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
-                {
-                    try
-                    {
-                        setFunc(newCargo, setValue.Value);
-                    }
-                    catch (Exception ex)
-                    { 
-                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
-                    }
-                }
-                else
-                {
-                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
-                }
-            }
+            var newCargo = new CargoUpdateDecorator(new CreateRecordCargo());
+            newCargo.ProcessQueryUpdate(QueryData.Values);
 
             QueryRepository.Add(newCargo);
 
@@ -92,15 +77,6 @@ namespace FlightApp.Query.Processing.Execution
             compareLibLazy.Value.TryGetValue(identifierName, out var compare)
                 ? compare(cargo, operation, constantNode)
                 : throw new QueryProcessingException($"{identifierName} is ivalid for {nameof(QuerySyntax.Cargo)}");
-
-        private static Dictionary<string, Action<CreateRecordCargo, string>> CreateAddDictionary() =>
-            new ()
-            {
-                {QuerySyntax.Cargo.IdField, (cargo, value) => cargo.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Cargo.CodeField, (cargo, value) => cargo.Code = value },
-                {QuerySyntax.Cargo.DescriptionField, (cargo, value) => cargo.Description = value },
-                {QuerySyntax.Cargo.WeightField, (cargo, value) => cargo.Weight = float.Parse(value, CultureInfo.CurrentUICulture) },
-            };
 
         private static Dictionary<string, Func<ICargoUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>> CreateCompareDictionary() =>
             new ()

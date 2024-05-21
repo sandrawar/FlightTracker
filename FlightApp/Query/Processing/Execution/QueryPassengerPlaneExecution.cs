@@ -8,7 +8,6 @@ namespace FlightApp.Query.Processing.Execution
     {
         private static readonly Lazy<IDictionary<string, Func<IPassengerPlaneUpdateDecorator, string>>> sourceReadlazy = new (CreateSourceReadDictionary);
         private static readonly Lazy<IDictionary<string, Func<IPassengerPlaneUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>>> compareLibLazy = new(CreateCompareDictionary);
-        private static readonly Lazy<IDictionary<string, Action<CreateRecordPassengerPlane, string>>> addLibLazy = new (CreateAddDictionary);
 
         public QueryPassengerPlaneExecution(IFlightAppDataQueryRepository flightAppDataQueryRepository, FlighAppQueryData flighAppQueryData): base(flightAppDataQueryRepository, flighAppQueryData)
         {
@@ -33,6 +32,8 @@ namespace FlightApp.Query.Processing.Execution
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
+
+            source.ProcessQueryUpdate(QueryData.Values);
 
             return true;
         }
@@ -63,25 +64,8 @@ namespace FlightApp.Query.Processing.Execution
                 throw new QueryProcessingException("query values not set");
             }
 
-            var newPassengerPlane = new CreateRecordPassengerPlane();
-            foreach (var setValue in QueryData.Values)
-            {
-                if (addLibLazy.Value.TryGetValue(setValue.Key, out var setFunc))
-                {
-                    try
-                    {
-                        setFunc(newPassengerPlane, setValue.Value);
-                    }
-                    catch (Exception ex)
-                    { 
-                        throw new QueryProcessingException($"setting {setValue.Key} value error", ex);
-                    }
-                }
-                else
-                {
-                    throw new QueryProcessingException($"setter for {setValue.Key} not found");
-                }
-            }
+            var newPassengerPlane = new PassengerPlaneUpdateDecorator(new CreateRecordPassengerPlane());
+            newPassengerPlane.ProcessQueryUpdate(QueryData.Values);
 
             QueryRepository.Add(newPassengerPlane);
 
@@ -92,18 +76,6 @@ namespace FlightApp.Query.Processing.Execution
             compareLibLazy.Value.TryGetValue(identifierName, out var compare)
                 ? compare(plane, operation, constantNode)
                 : throw new QueryProcessingException($"{identifierName} is ivalid for {nameof(QuerySyntax.PassengerPlane)}");
-
-        private static Dictionary<string, Action<CreateRecordPassengerPlane, string>> CreateAddDictionary() =>
-            new ()
-            {
-                {QuerySyntax.CargoPlane.IdField, (plane, value) => plane.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.PassengerPlane.BusinessClassSizeField, (plane, value) => plane.BusinessClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.CargoPlane.CountryCodeField, (plane, value) => plane.Country = value },
-                {QuerySyntax.PassengerPlane.EconomyClassSizeField, (plane, value) => plane.EconomyClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.PassengerPlane.FirstClassSizeField, (plane, value) => plane.FirstClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.CargoPlane.ModelField, (plane, value) => plane.Model = value },
-                {QuerySyntax.CargoPlane.SerialField, (plane, value) => plane.Serial = value },
-            };
 
         private static Dictionary<string, Func<IPassengerPlaneUpdateDecorator, ConditionCompareOperation, IConstantNode, bool>> CreateCompareDictionary() =>
             new()
