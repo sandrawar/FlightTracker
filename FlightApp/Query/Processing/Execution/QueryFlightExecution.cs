@@ -88,6 +88,8 @@ namespace FlightApp.Query.Processing.Execution
                 {QuerySyntax.Flight.PlaneField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.PlaneID, operation, constantNode) },
                 {QuerySyntax.Flight.TakeofTimeField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.TakeoffTime, operation, constantNode) },
                 {QuerySyntax.Flight.TargetField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.TargetAsID, operation, constantNode) },
+                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.Longitude, operation, constantNode) },
+                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.Latitude, operation, constantNode) },
             };
 
         private static Dictionary<string, Func<IFlightUpdateDecorator, string>> CreateSourceReadDictionary() =>
