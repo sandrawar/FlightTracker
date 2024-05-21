@@ -68,6 +68,7 @@ internal class Program
                 "  update (object_class} set ({key_value_List}) [where {conditions}]",
                 "  delete {object_class} where {conditions}]",
                 "  add {object_class} new ({key_value_List})",
+                "",
             ]);
         }
     }
