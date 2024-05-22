@@ -122,7 +122,7 @@ namespace FlightApp.Query.Condition
         {
             try
             {
-                return parse(RawValue, CultureInfo.CurrentUICulture);
+                return parse(RawValue, CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {

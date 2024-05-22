@@ -137,10 +137,10 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<CargoUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.Cargo.IdField, (cargo, value) => cargo.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Cargo.IdField, (cargo, value) => cargo.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Cargo.CodeField, (cargo, value) => cargo.Code = value },
                 {QuerySyntax.Cargo.DescriptionField, (cargo, value) => cargo.Description = value },
-                {QuerySyntax.Cargo.WeightField, (cargo, value) => cargo.Weight = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Cargo.WeightField, (cargo, value) => cargo.Weight = float.Parse(value, CultureInfo.InvariantCulture) },
             };
 
     }
@@ -243,12 +243,12 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<CrewUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.Crew.IdField, (crew, value) => crew.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Crew.AgeField, (crew, value) => crew.Age = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Crew.IdField, (crew, value) => crew.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Crew.AgeField, (crew, value) => crew.Age = ulong.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Crew.EmailField, (crew, value) => crew.Email = value },
                 {QuerySyntax.Crew.NameField, (crew, value) => crew.Name = value },
                 {QuerySyntax.Crew.PhoneField, (crew, value) => crew.Phone = value },
-                {QuerySyntax.Crew.PractiseField, (crew, value) => crew.Practice = ushort.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Crew.PractiseField, (crew, value) => crew.Practice = ushort.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Crew.RoleField, (crew, value) => crew.Role = value },
             };
 
@@ -302,11 +302,11 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<PassengerUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.Crew.IdField, (passenger, value) => passenger.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Crew.AgeField, (passenger, value) => passenger.Age = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Crew.IdField, (passenger, value) => passenger.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Crew.AgeField, (passenger, value) => passenger.Age = ulong.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Passenger.ClassField, (passenger, value) => passenger.Class = value },
                 {QuerySyntax.Crew.EmailField, (passenger, value) => passenger.Email = value },
-                {QuerySyntax.Passenger.MilesField, (passenger, value) => passenger.Miles = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Passenger.MilesField, (passenger, value) => passenger.Miles = ulong.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Crew.NameField, (passenger, value) => passenger.Name = value },
                 {QuerySyntax.Crew.PhoneField, (passenger, value) => passenger.Phone = value },
             };
@@ -384,9 +384,9 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<CargoPlaneUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.CargoPlane.IdField, (plane, value) => plane.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.CargoPlane.IdField, (plane, value) => plane.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.CargoPlane.CountryCodeField, (plane, value) => plane.Country = value },
-                {QuerySyntax.CargoPlane.MaxLoadField, (plane, value) => plane.MaxLoad = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.CargoPlane.MaxLoadField, (plane, value) => plane.MaxLoad = float.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.CargoPlane.ModelField, (plane, value) => plane.Model = value },
                 {QuerySyntax.CargoPlane.SerialField, (plane, value) => plane.Serial = value },
             };
@@ -447,11 +447,11 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<PassengerPlaneUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.CargoPlane.IdField, (plane, value) => plane.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.PassengerPlane.BusinessClassSizeField, (plane, value) => plane.BusinessClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.CargoPlane.IdField, (plane, value) => plane.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.PassengerPlane.BusinessClassSizeField, (plane, value) => plane.BusinessClassSize = ushort.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.CargoPlane.CountryCodeField, (plane, value) => plane.Country = value },
-                {QuerySyntax.PassengerPlane.EconomyClassSizeField, (plane, value) => plane.EconomyClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.PassengerPlane.FirstClassSizeField, (plane, value) => plane.FirstClassSize = ushort.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.PassengerPlane.EconomyClassSizeField, (plane, value) => plane.EconomyClassSize = ushort.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.PassengerPlane.FirstClassSizeField, (plane, value) => plane.FirstClassSize = ushort.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.CargoPlane.ModelField, (plane, value) => plane.Model = value },
                 {QuerySyntax.CargoPlane.SerialField, (plane, value) => plane.Serial = value },
             };
@@ -534,13 +534,13 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<AirportUpdateDecorator, string>> CreateUpdateDictionary() =>
             new()
             {
-                {QuerySyntax.Airport.IdField, (airport, value) => airport.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Airport.AmslField, (airport, value) => airport.AMSL = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.IdField, (airport, value) => airport.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Airport.AmslField, (airport, value) => airport.AMSL = float.Parse(value, CultureInfo.InvariantCulture) },
                 {QuerySyntax.Airport.CodeField, (airport, value) => airport.Code = value },
                 {QuerySyntax.Airport.CountryCodeField, (airport, value) => airport.Country = value },
                 {QuerySyntax.Airport.NameField, (airport, value) => airport.Name = value },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.InvariantCulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.InvariantCulture) },
             };
 
     }
@@ -697,15 +697,15 @@ namespace FlightApp.DataProcessor
         private static Dictionary<string, Action<FlightUpdateDecorator, string>> CreateAddDictionary() =>
             new()
             {
-                {QuerySyntax.Flight.IdField, (flight, value) => flight.Id = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.AmslField, (flight, value) => flight.AMSL = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.LandingTimeField, (flight, value) => flight.LandingTime = DateTime.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.OriginField, (flight, value) => flight.OriginAsID = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.PlaneField, (flight, value) => flight.PlaneID = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.TakeofTimeField, (flight, value) => flight.TakeoffTime = DateTime.Parse(value, CultureInfo.CurrentUICulture) },
-                {QuerySyntax.Flight.TargetField, (flight, value) => flight.TargetAsID = ulong.Parse(value, CultureInfo.CurrentUICulture) },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.CurrentUICulture) },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Latitude = float.Parse(value, CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Flight.IdField, (flight, value) => flight.Id = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.AmslField, (flight, value) => flight.AMSL = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.LandingTimeField, (flight, value) => flight.LandingTime = DateTime.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.OriginField, (flight, value) => flight.OriginAsID = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.PlaneField, (flight, value) => flight.PlaneID = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.TakeoffTimeField, (flight, value) => flight.TakeoffTime = DateTime.Parse(value, CultureInfo.InvariantCulture) },
+                {QuerySyntax.Flight.TargetField, (flight, value) => flight.TargetAsID = ulong.Parse(value, CultureInfo.InvariantCulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (airport, value) => airport.Longitude = float.Parse(value, CultureInfo.InvariantCulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (airport, value) => airport.Latitude = float.Parse(value, CultureInfo.InvariantCulture) },
             };
     }
 

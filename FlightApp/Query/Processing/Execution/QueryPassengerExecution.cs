@@ -28,7 +28,7 @@ namespace FlightApp.Query.Processing.Execution
             }
 
             if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
-                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+                && ulong.TryParse(newIdValue, CultureInfo.InvariantCulture, out var newId))
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
@@ -92,10 +92,10 @@ namespace FlightApp.Query.Processing.Execution
             new ()
             {
                 {QuerySyntax.Passenger.IdField, passenger => passenger.Id.ToString(CultureInfo.InvariantCulture) },
-                {QuerySyntax.Passenger.AgeField, passenger => passenger.Age.ToString() },
+                {QuerySyntax.Passenger.AgeField, passenger => passenger.Age.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Passenger.ClassField, passenger => passenger.Class },
                 {QuerySyntax.Passenger.EmailField, passenger => passenger.Email },
-                {QuerySyntax.Passenger.MilesField, passenger => passenger.Miles.ToString() },
+                {QuerySyntax.Passenger.MilesField, passenger => passenger.Miles.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Passenger.NameField, passenger => passenger.Name },
                 {QuerySyntax.Passenger.PhoneField, passenger => passenger.Phone },
             };

@@ -28,7 +28,7 @@ namespace FlightApp.Query.Processing.Execution
             }
 
             if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
-                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+                && ulong.TryParse(newIdValue, CultureInfo.InvariantCulture, out var newId))
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
@@ -86,7 +86,7 @@ namespace FlightApp.Query.Processing.Execution
                 {QuerySyntax.Flight.LandingTimeField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.LandingTime, operation, constantNode) },
                 {QuerySyntax.Flight.OriginField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.OriginAsID, operation, constantNode) },
                 {QuerySyntax.Flight.PlaneField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.PlaneID, operation, constantNode) },
-                {QuerySyntax.Flight.TakeofTimeField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.TakeoffTime, operation, constantNode) },
+                {QuerySyntax.Flight.TakeoffTimeField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.TakeoffTime, operation, constantNode) },
                 {QuerySyntax.Flight.TargetField, (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.TargetAsID, operation, constantNode) },
                 {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.Longitude, operation, constantNode) },
                 {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", (flight, operation, constantNode) => ConditionComparerHelper.Compare(flight.Latitude, operation, constantNode) },
@@ -96,15 +96,15 @@ namespace FlightApp.Query.Processing.Execution
             new ()
             {
                 {QuerySyntax.Flight.IdField, flight => flight.Id.ToString(CultureInfo.InvariantCulture) },
-                {QuerySyntax.Flight.AmslField, flight => flight.AMSL?.ToString() ?? string.Empty },
-                {QuerySyntax.Flight.LandingTimeField, flight => flight.LandingTime.ToString() },
+                {QuerySyntax.Flight.AmslField, flight => flight.AMSL?.ToString(CultureInfo.InvariantCulture) ?? string.Empty },
+                {QuerySyntax.Flight.LandingTimeField, flight => flight.LandingTime.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Flight.OriginField, flight => flight.OriginAsID.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Flight.PlaneField, flight => flight.PlaneID.ToString(CultureInfo.InvariantCulture) },
-                {QuerySyntax.Flight.TakeofTimeField, flight => flight.TakeoffTime.ToString() },
+                {QuerySyntax.Flight.TakeoffTimeField, flight => flight.TakeoffTime.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Flight.TargetField, flight => flight.TargetAsID.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Flight.WorldPositionField, flight => $"{{{flight.Latitude}, {flight.Longitude}}}" },
-                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", flight => $"{flight.Longitude}" },
-                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", flight => $"{flight.Latitude}" },
+                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", flight => string.Create(CultureInfo.InvariantCulture, $"{flight.Longitude}") },
+                {$"{QuerySyntax.Flight.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", flight => string.Create(CultureInfo.InvariantCulture, $"{flight.Latitude}") },
             };
     }
 }

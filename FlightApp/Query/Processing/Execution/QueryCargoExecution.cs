@@ -29,7 +29,7 @@ namespace FlightApp.Query.Processing.Execution
             }
 
             if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
-                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+                && ulong.TryParse(newIdValue, CultureInfo.InvariantCulture, out var newId))
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
@@ -93,7 +93,7 @@ namespace FlightApp.Query.Processing.Execution
                 {QuerySyntax.Cargo.IdField, cargo => cargo.Id.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Cargo.CodeField, cargo => cargo.Code },
                 {QuerySyntax.Cargo.DescriptionField, cargo => cargo.Description },
-                {QuerySyntax.Cargo.WeightField, cargo => cargo.Weight.ToString() },
+                {QuerySyntax.Cargo.WeightField, cargo => cargo.Weight.ToString(CultureInfo.InvariantCulture) },
             };
     }
 }

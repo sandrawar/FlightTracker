@@ -35,10 +35,10 @@
         public static bool Compare(float currentValue, ConditionCompareOperation operation, IConstantNode compareWith) =>
             operation switch
             {
-                ConditionCompareOperation.Equal => currentValue == compareWith.ParseAsUlong(),
-                ConditionCompareOperation.NotEqual => currentValue != compareWith.ParseAsUlong(),
-                ConditionCompareOperation.LessOrEqual => currentValue <= compareWith.ParseAsUlong(),
-                ConditionCompareOperation.GreaterThanOrEqual => currentValue >= compareWith.ParseAsUlong(),
+                ConditionCompareOperation.Equal => currentValue == compareWith.ParseAsFloat(),
+                ConditionCompareOperation.NotEqual => currentValue != compareWith.ParseAsFloat(),
+                ConditionCompareOperation.LessOrEqual => currentValue <= compareWith.ParseAsFloat(),
+                ConditionCompareOperation.GreaterThanOrEqual => currentValue >= compareWith.ParseAsFloat(),
                 _ => throw new ArgumentOutOfRangeException(nameof(operation)),
             };
 

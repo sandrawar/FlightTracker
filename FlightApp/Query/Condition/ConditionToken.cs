@@ -19,7 +19,7 @@ namespace FlightApp.Query.Condition
     {
         private const string patternLogical = @"and|or";
         private const string patternOperator = @"=|!=|<=|>=";
-        private const string patternNumber = @"\d+(\.\d+)?";
+        private const string patternNumber = @"-?\d+(\.\d+)?";
         private const string patternIdOrValue = @"[A-Za-z_][\w\.]*";
 
         private static readonly Regex TokenRegex = new Regex(@$"\s*({patternLogical}|{patternOperator}|{patternNumber}|{patternIdOrValue})\s*|.+");
@@ -32,7 +32,7 @@ namespace FlightApp.Query.Condition
             ConditionTokenType previousTokenType = ConditionTokenType.End;
             foreach (Match match in matches)
             {
-                string value = match.Groups[1].Value;
+                string value = match.Value.Trim();
                 ConditionTokenType tokenType = DetermineTokenType(previousTokenType, value);
                 previousTokenType = tokenType;
                 tokens.Add(new ConditionToken(tokenType, value));

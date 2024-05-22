@@ -123,7 +123,7 @@
                 LandingTimeField,
                 OriginField,
                 PlaneField,
-                TakeofTimeField,
+                TakeoffTimeField,
                 TargetField,
                 WorldPositionField,
             ];
@@ -138,7 +138,7 @@
             public const string LandingTimeField = "LandingTime";
             public const string OriginField = "Origin";
             public const string PlaneField = "Plane";
-            public const string TakeofTimeField = "TakeofTime";
+            public const string TakeoffTimeField = "TakeoffTime";
             public const string TargetField = "Target";
             public const string WorldPositionField = "WorldPosition";
         }

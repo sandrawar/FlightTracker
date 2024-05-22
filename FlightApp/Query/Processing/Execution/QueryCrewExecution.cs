@@ -28,7 +28,7 @@ namespace FlightApp.Query.Processing.Execution
             }
 
             if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
-                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+                && ulong.TryParse(newIdValue, CultureInfo.InvariantCulture, out var newId))
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
@@ -93,11 +93,11 @@ namespace FlightApp.Query.Processing.Execution
             new()
             {
                 {QuerySyntax.Crew.IdField, crew => crew.Id.ToString(CultureInfo.InvariantCulture) },
-                {QuerySyntax.Crew.AgeField, crew => crew.Age.ToString() },
+                {QuerySyntax.Crew.AgeField, crew => crew.Age.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Crew.EmailField, crew => crew.Email },
                 {QuerySyntax.Crew.NameField, crew => crew.Name },
                 {QuerySyntax.Crew.PhoneField, crew => crew.Phone },
-                {QuerySyntax.Crew.PractiseField, crew => crew.Practice.ToString() },
+                {QuerySyntax.Crew.PractiseField, crew => crew.Practice.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Crew.RoleField, crew => crew.Role },
             };
     }

@@ -28,7 +28,7 @@ namespace FlightApp.Query.Processing.Execution
             }
 
             if (QueryData.Values.TryGetValue(QuerySyntax.Airport.IdField, out var newIdValue)
-                && ulong.TryParse(newIdValue, CultureInfo.CurrentUICulture, out var newId))
+                && ulong.TryParse(newIdValue, CultureInfo.InvariantCulture, out var newId))
             {
                 QueryRepository.UpdateData(new IDUpdateData(source.Id, newId));
             }
@@ -93,13 +93,13 @@ namespace FlightApp.Query.Processing.Execution
             new ()
             {
                 {QuerySyntax.Airport.IdField, airport => airport.Id.ToString(CultureInfo.InvariantCulture) },
-                {QuerySyntax.Airport.AmslField, airport => airport.AMSL.ToString() },
+                {QuerySyntax.Airport.AmslField, airport => airport.AMSL.ToString(CultureInfo.InvariantCulture) },
                 {QuerySyntax.Airport.CodeField, airport => airport.Code },
                 {QuerySyntax.Airport.CountryCodeField, airport => airport.Country },
                 {QuerySyntax.Airport.NameField, airport => airport.Name },
-                {QuerySyntax.Airport.WorldPositionField, airport => $"{{{airport.Latitude}, {airport.Longitude}}}" },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", airport => airport.Longitude.ToString(CultureInfo.CurrentUICulture) },
-                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", airport => airport.Longitude.ToString(CultureInfo.CurrentUICulture) },
+                {QuerySyntax.Airport.WorldPositionField, airport => string.Create(CultureInfo.InvariantCulture, $"{{{airport.Latitude}, {airport.Longitude}}}") },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LongitudeField}", airport => airport.Longitude.ToString(CultureInfo.InvariantCulture) },
+                {$"{QuerySyntax.Airport.WorldPositionField}.{QuerySyntax.WorldPosition.LatitudeField}", airport => airport.Longitude.ToString(CultureInfo.InvariantCulture) },
             };
     }
 }
